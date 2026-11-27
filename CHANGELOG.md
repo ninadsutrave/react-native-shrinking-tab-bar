@@ -1,8 +1,8 @@
 # Changelog
 
-All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
+All notable changes to this project are documented here. The project uses [Semantic Versioning](https://semver.org/). Entries are generated from changesets; see [RELEASING.md](RELEASING.md).
 
-## Unreleased
+## 0.1.0
 
 ### Added
 
@@ -17,3 +17,5 @@ All notable changes to this project are documented here. The format follows [Kee
 - Glass background in a separate `/glass` entry point: Liquid Glass on iOS 26+, blur on older iOS, frosted fill on Android and web.
 - `renderBackground` and `renderTab` for custom drawing.
 - RTL support, screen-reader labels and states, badges, keyboard hiding, and hiding the bar per screen.
+- Style presets (`minimal`, `compact`, `vibrant`, `fullWidth`, `hideOnScroll`) and `combine()` to merge presets, glass and your own options.
+- Development warnings for common setup mistakes.

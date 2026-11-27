@@ -42,7 +42,9 @@
     "prepare": "bob build",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "test": "node --test test/*.test.mts && jest"
+    "test": "node --test test/*.test.mts && jest",
+    "changeset": "changeset",
+    "release": "changeset publish"
   },
   "keywords": [
     "react-native",
@@ -72,6 +74,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@eslint/compat": "^2.1.1",
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^9.39.5",

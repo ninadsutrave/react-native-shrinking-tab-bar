@@ -95,9 +95,9 @@ For example: `fix: keep labels visible after toggling keepLabelsWhenCollapsed`.
 - Keep each pull request to one change.
 - Fill in the template: what changed, why, and how you tested it on each platform.
 - Add or update tests for behaviour changes.
-- Update the README and `CHANGELOG.md` (under "Unreleased") for anything users will notice.
+- Update the README for anything users will notice, and add a changeset: `yarn changeset`.
 - CI must pass.
 
 ## Releases
 
-Maintainers release from `main`. The version follows [Semantic Versioning](https://semver.org/); while the package is 0.x, minor versions may include breaking changes, and the changelog calls them out.
+Releases are automated with Changesets; see [RELEASING.md](RELEASING.md). Your part is the changeset in your pull request.

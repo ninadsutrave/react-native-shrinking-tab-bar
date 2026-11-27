@@ -21,5 +21,5 @@
 ## Checklist
 
 - [ ] README and option tables updated for anything users will notice
-- [ ] `CHANGELOG.md` updated under "Unreleased"
+- [ ] Changeset added (`yarn changeset`), unless nothing user-facing changed
 - [ ] No breaking change, or it's described above
