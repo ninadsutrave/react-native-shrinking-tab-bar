@@ -8,13 +8,23 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
-    # The example app pins versions to its Expo SDK; upgrade those with `npx expo install --fix`.
+        update-types: [minor, patch]
     ignore:
+      # Major versions are upgraded deliberately, not by a bot.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+      # Everything tied to the React Native and Expo SDK versions moves
+      # together with the example's SDK: `npx expo install --fix`.
       - dependency-name: react
+      - dependency-name: react-dom
       - dependency-name: react-native
-      - dependency-name: react-native-reanimated
-      - dependency-name: react-native-worklets
-      - dependency-name: 'expo*'
+      - dependency-name: 'react-native-*'
+      - dependency-name: '@react-native/*'
+      - dependency-name: '@react-native-community/*'
+      - dependency-name: expo
+      - dependency-name: 'expo-*'
+      - dependency-name: '@expo/*'
+      - dependency-name: '@react-navigation/*'
   - package-ecosystem: github-actions
     directory: /
     schedule:
