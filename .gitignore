@@ -82,3 +82,6 @@ example/ios/
 
 # Built by yarn site:build (demo export)
 website/demo/
+
+# Local recordings and other build output
+builds/

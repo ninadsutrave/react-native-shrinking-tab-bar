@@ -2,6 +2,12 @@
 
 A floating pill tab bar for React Navigation and Expo Router. It shrinks to icons when you scroll down and comes back when you scroll up.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ninadsutrave/react-native-shrinking-tab-bar/main/docs/shrink.gif" alt="The tab bar shrinking to icons as the feed scrolls down, and expanding again on scroll up" width="300" />
+</p>
+
+<p align="center"><a href="https://ninadsutrave.github.io/react-native-shrinking-tab-bar/">Try the live demo</a></p>
+
 - **Drop-in.** Pass it as the `tabBar` of `@react-navigation/bottom-tabs` v7 or Expo Router `<Tabs>`. It reads the tab options you already set: `tabBarIcon`, `tabBarLabel`, `title`, `tabBarBadge`, tint colours, test IDs and accessibility labels.
 - **Smooth on Android and iOS.** The collapse is animated with transforms and opacity only, on the UI thread. It never re-runs layout and never waits on the JS thread, so a busy feed doesn't make it stutter.
 - **Customisable.** Colours, sizes, scroll thresholds, animation curve, indicator style and transition, press feedback, background (including Liquid Glass), placement, an action button beside the bar, and the tab content itself.
