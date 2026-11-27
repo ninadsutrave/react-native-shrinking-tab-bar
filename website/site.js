@@ -34,6 +34,7 @@
       collapseMode: data.get('collapseMode'),
       placement: data.get('placement'),
       actionButton: data.get('actionButton') === 'true',
+      indicator: data.get('indicator') === 'custom' ? customColor.value : data.get('indicator') || '',
     };
   }
 
@@ -44,6 +45,22 @@
       window.location.origin
     );
   }
+
+  // ---- custom active-tab colour: picking a colour selects the custom swatch
+  var customColor = document.getElementById('custom-color');
+  var customSwatch = document.getElementById('custom-swatch');
+  var customRadio = form.querySelector('input[name="indicator"][value="custom"]');
+  customSwatch.addEventListener('click', function (e) {
+    e.preventDefault();
+    customRadio.checked = true;
+    customColor.click();
+    sendConfig();
+  });
+  customColor.addEventListener('input', function () {
+    customSwatch.style.setProperty('--c', customColor.value);
+    customRadio.checked = true;
+    sendConfig();
+  });
 
   form.addEventListener('change', sendConfig);
   frame.addEventListener('load', sendConfig);

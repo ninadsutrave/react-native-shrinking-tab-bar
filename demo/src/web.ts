@@ -8,6 +8,8 @@ export interface DemoConfig {
   collapseMode: 'icons' | 'hide' | 'none';
   actionButton: boolean;
   placement: 'center' | 'start' | 'end';
+  /** Fill behind the active tab, or empty for the bar's default. */
+  indicator: string;
 }
 
 const DEFAULTS: DemoConfig = {
@@ -16,6 +18,7 @@ const DEFAULTS: DemoConfig = {
   collapseMode: 'icons',
   actionButton: false,
   placement: 'center',
+  indicator: '',
 };
 
 function fromUrl(): Partial<DemoConfig> {

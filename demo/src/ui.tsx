@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { createContext, useContext, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
@@ -66,74 +65,27 @@ function Cover({
   height: number;
   radius: number;
 }) {
-  const [a, b] = event.category.colors;
+  const p = usePalette();
   return (
-    <LinearGradient
-      colors={[a, b]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.cover, { height, borderRadius: radius }]}
+    <View
+      style={[
+        styles.cover,
+        { height, borderRadius: radius, backgroundColor: p.raised },
+      ]}
     >
-      {/* soft circles give the cover some depth without stock imagery */}
-      <View
-        style={[
-          styles.orb,
-          {
-            width: height * 1.1,
-            height: height * 1.1,
-            borderRadius: height,
-            right: -height * 0.35,
-            top: -height * 0.45,
-          },
-        ]}
-      />
-      <View
-        style={[
-          styles.orb,
-          {
-            width: height * 0.7,
-            height: height * 0.7,
-            borderRadius: height,
-            left: -height * 0.2,
-            bottom: -height * 0.35,
-          },
-        ]}
-      />
       <Ionicons
         name={event.category.icon}
-        size={height * 0.42}
-        color="rgba(255,255,255,0.92)"
-        style={styles.coverIcon}
+        size={height * 0.28}
+        color={p.faint}
       />
-      <View style={styles.dateBadge}>
-        <Text style={styles.dateDay}>{event.day}</Text>
-        <Text style={styles.dateNum}>{event.date}</Text>
-      </View>
-    </LinearGradient>
+    </View>
   );
 }
 
-function Avatars({ event }: { event: EventItem }) {
+function Going({ event }: { event: EventItem }) {
   const p = usePalette();
   return (
-    <View style={styles.row}>
-      {event.avatars.map((av, i) => (
-        <View
-          key={av.initials + i}
-          style={[
-            styles.avatar,
-            {
-              backgroundColor: av.color,
-              marginLeft: i ? -6 : 0,
-              borderColor: p.card,
-            },
-          ]}
-        >
-          <Text style={styles.avatarText}>{av.initials}</Text>
-        </View>
-      ))}
-      <Text style={[styles.going, { color: p.sub }]}>+{event.going} going</Text>
-    </View>
+    <Text style={[styles.going, { color: p.sub }]}>{event.going} going</Text>
   );
 }
 
@@ -152,7 +104,7 @@ function Heart({ event }: { event: EventItem }) {
       <Ionicons
         name={on ? 'heart' : 'heart-outline'}
         size={18}
-        color={on ? '#F43F5E' : p.text}
+        color={p.text}
       />
     </Pressable>
   );
@@ -172,7 +124,7 @@ export function EventCard({ event }: { event: EventItem }) {
       <Cover event={event} height={event.featured ? 190 : 150} radius={16} />
       <View style={styles.cardBody}>
         <View style={styles.rowBetween}>
-          <Text style={[styles.kicker, { color: p.accent }]}>
+          <Text style={[styles.kicker, { color: p.sub }]}>
             {event.category.label.toUpperCase()} · {event.time}
           </Text>
           <Text style={[styles.price, { color: p.text }]}>{event.price}</Text>
@@ -187,7 +139,7 @@ export function EventCard({ event }: { event: EventItem }) {
           </Text>
         </View>
         <View style={[styles.rowBetween, styles.cardFoot]}>
-          <Avatars event={event} />
+          <Going event={event} />
           <Heart event={event} />
         </View>
       </View>
@@ -197,7 +149,6 @@ export function EventCard({ event }: { event: EventItem }) {
 
 export function PlaceRow({ place }: { place: PlaceItem }) {
   const p = usePalette();
-  const [a, b] = place.category.colors;
   return (
     <View
       style={[
@@ -205,55 +156,17 @@ export function PlaceRow({ place }: { place: PlaceItem }) {
         { backgroundColor: p.card, borderColor: p.hairline },
       ]}
     >
-      <LinearGradient
-        colors={[a, b]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.thumb}
-      >
-        <Ionicons
-          name={place.category.icon}
-          size={24}
-          color="rgba(255,255,255,0.95)"
-        />
-      </LinearGradient>
+      <View style={[styles.thumb, { backgroundColor: p.raised }]}>
+        <Ionicons name={place.category.icon} size={22} color={p.faint} />
+      </View>
       <View style={styles.placeBody}>
         <Text style={[styles.placeName, { color: p.text }]}>{place.name}</Text>
         <Text style={[styles.meta, { color: p.sub }]}>
           {place.cuisine} · {place.distance}
         </Text>
-        <View style={[styles.row, styles.placeFoot]}>
-          <View
-            style={[
-              styles.rating,
-              { backgroundColor: p.dark ? '#14532D' : '#DCFCE7' },
-            ]}
-          >
-            <Ionicons
-              name="star"
-              size={11}
-              color={p.dark ? '#86EFAC' : '#15803D'}
-            />
-            <Text
-              style={[
-                styles.ratingText,
-                { color: p.dark ? '#86EFAC' : '#15803D' },
-              ]}
-            >
-              {place.rating}
-            </Text>
-          </View>
-          <Text
-            style={[
-              styles.open,
-              {
-                color: place.open ? (p.dark ? '#86EFAC' : '#15803D') : p.faint,
-              },
-            ]}
-          >
-            {place.open ? 'Open now' : 'Opens at 6 PM'}
-          </Text>
-        </View>
+        <Text style={[styles.meta, styles.placeFoot, { color: p.faint }]}>
+          {place.rating} · {place.open ? 'Open now' : 'Opens at 6 PM'}
+        </Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color={p.faint} />
     </View>
@@ -360,7 +273,6 @@ export function CategoryChips() {
               },
             ]}
           >
-            <Ionicons name={c.icon} size={14} color={on ? p.bg : p.text} />
             <Text style={[styles.chipText, { color: on ? p.bg : p.text }]}>
               {c.label}
             </Text>
@@ -392,25 +304,6 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
   },
   cover: { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  orb: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.12)' },
-  coverIcon: { opacity: 0.95 },
-  dateBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    alignItems: 'center',
-  },
-  dateDay: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#6B6B76',
-    letterSpacing: 0.5,
-  },
-  dateNum: { fontSize: 17, fontWeight: '800', color: '#111114', marginTop: -1 },
   cardBody: { paddingHorizontal: 8, paddingTop: 10, paddingBottom: 4 },
   kicker: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6 },
   price: { fontSize: 13, fontWeight: '700' },
@@ -423,21 +316,7 @@ const styles = StyleSheet.create({
   },
   meta: { fontSize: 13, marginLeft: 3 },
   cardFoot: { marginTop: 10 },
-  avatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: -0.3,
-  },
-  going: { fontSize: 12, marginLeft: 8, fontWeight: '600' },
+  going: { fontSize: 12, fontWeight: '600' },
   heart: {
     width: 36,
     height: 36,
@@ -464,16 +343,6 @@ const styles = StyleSheet.create({
   placeBody: { flex: 1, marginLeft: 12 },
   placeName: { fontSize: 15, fontWeight: '700', marginBottom: 2 },
   placeFoot: { marginTop: 6 },
-  rating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 6,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-    marginRight: 8,
-  },
-  ratingText: { fontSize: 11, fontWeight: '800', marginLeft: 2 },
-  open: { fontSize: 12, fontWeight: '600' },
   carousel: { marginBottom: 16, marginTop: 4 },
   carouselRow: { paddingHorizontal: 16, gap: 12, paddingTop: 10 },
   mini: {

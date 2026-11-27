@@ -24,6 +24,7 @@
     </script>
   </head>
   <body>
+    <div class="ambient" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <header class="top">
       <a class="mark" href="#" aria-label="react-native-shrinking-tab-bar home">
         <span class="mark-pill" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -94,6 +95,16 @@
                 <label><input type="radio" name="preset" value="vibrant" /><span>Vibrant</span></label>
                 <label><input type="radio" name="preset" value="fullWidth" /><span>Full width</span></label>
                 <label><input type="radio" name="preset" value="glass" /><span>Glass</span></label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Active tab</legend>
+              <div class="opts swatches">
+                <label title="Default"><input type="radio" name="indicator" value="" checked aria-label="Default" /><span class="swatch swatch-default"></span></label>
+                <label title="Blue"><input type="radio" name="indicator" value="#2563EB" aria-label="Blue" /><span class="swatch" style="--c:#2563EB"></span></label>
+                <label title="Violet"><input type="radio" name="indicator" value="#7C3AED" aria-label="Violet" /><span class="swatch" style="--c:#7C3AED"></span></label>
+                <label title="Orange"><input type="radio" name="indicator" value="#EA580C" aria-label="Orange" /><span class="swatch" style="--c:#EA580C"></span></label>
+                <label class="swatch-custom" title="Custom colour"><input type="radio" name="indicator" value="custom" aria-label="Custom colour" /><span class="swatch" id="custom-swatch" style="--c:#0EA5E9"></span><input type="color" id="custom-color" value="#0ea5e9" tabindex="-1" aria-hidden="true" /></label>
               </div>
             </fieldset>
             <fieldset>

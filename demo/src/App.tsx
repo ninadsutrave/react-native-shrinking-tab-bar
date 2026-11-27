@@ -5,7 +5,6 @@ import {
   DefaultTheme,
   NavigationContainer,
 } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   useCallback,
   useContext,
@@ -134,9 +133,9 @@ function HomeHeader() {
             </Text>
           </View>
         </View>
-        <LinearGradient colors={['#F59E0B', '#EC4899']} style={styles.me}>
-          <Text style={styles.meText}>AR</Text>
-        </LinearGradient>
+        <View style={[styles.me, { backgroundColor: p.raised }]}>
+          <Text style={[styles.meText, { color: p.text }]}>AR</Text>
+        </View>
       </View>
       <View
         style={[
@@ -181,16 +180,18 @@ function ExploreScreen() {
             <Text style={[styles.h1, { color: p.text }]}>Explore</Text>
             <View style={styles.grid}>
               {CATEGORIES.map((c) => (
-                <LinearGradient
+                <View
                   key={c.key}
-                  colors={c.colors}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.tile}
+                  style={[
+                    styles.tile,
+                    { backgroundColor: p.card, borderColor: p.hairline },
+                  ]}
                 >
-                  <Ionicons name={c.icon} size={22} color="#fff" />
-                  <Text style={styles.tileText}>{c.label}</Text>
-                </LinearGradient>
+                  <Ionicons name={c.icon} size={20} color={p.sub} />
+                  <Text style={[styles.tileText, { color: p.text }]}>
+                    {c.label}
+                  </Text>
+                </View>
               ))}
             </View>
             <Text style={[styles.h2, { color: p.text }]}>Popular places</Text>
@@ -259,9 +260,9 @@ function ProfileScreen() {
           { backgroundColor: p.card, borderColor: p.hairline },
         ]}
       >
-        <LinearGradient colors={['#F59E0B', '#EC4899']} style={styles.bigMe}>
-          <Text style={styles.bigMeText}>AR</Text>
-        </LinearGradient>
+        <View style={[styles.bigMe, { backgroundColor: p.raised }]}>
+          <Text style={[styles.bigMeText, { color: p.text }]}>AR</Text>
+        </View>
         <Text style={[styles.name, { color: p.text }]}>Alex Rivera</Text>
         <Text style={[styles.meta, { color: p.sub }]}>Out most Fridays</Text>
         <View style={styles.stats}>
@@ -323,6 +324,32 @@ const tabIcon =
 
 const Tab = createBottomTabNavigator();
 
+/** Black or white, whichever reads better on `hex`. */
+function inkOn(hex: string) {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const ch = [n >> 16, (n >> 8) & 255, n & 255].map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const l = 0.2126 * ch[0]! + 0.7152 * ch[1]! + 0.0722 * ch[2]!;
+  return l > 0.4 ? '#111114' : '#FFFFFF';
+}
+
+/** A solid active-tab fill, with an icon colour that stays readable on it. */
+function activeTabColors(fill: string) {
+  if (!/^#[0-9a-f]{6}$/i.test(fill)) return {};
+  const ink = inkOn(fill);
+  return {
+    showIndicator: true,
+    colors: {
+      indicator: fill,
+      activeTint: ink,
+      actionBackground: fill,
+      actionTint: ink,
+    },
+  };
+}
+
 export default function App() {
   const config = useDemoConfig();
   const palette = config.theme === 'light' ? LIGHT : DARK;
@@ -361,6 +388,7 @@ export default function App() {
       theme: palette.dark ? 'dark' : 'light',
       collapseMode: config.collapseMode,
       placement: config.placement,
+      ...activeTabColors(config.indicator),
       actionButton: config.actionButton
         ? {
             icon: ({ color, size }) => (
@@ -462,7 +490,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  meText: { color: '#fff', fontWeight: '800' },
+  meText: { fontWeight: '700' },
   search: {
     marginHorizontal: 16,
     marginBottom: 14,
@@ -506,8 +534,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 12,
     justifyContent: 'space-between',
+    borderWidth: StyleSheet.hairlineWidth,
   },
-  tileText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  tileText: { fontSize: 15, fontWeight: '700' },
   empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 40 },
   emptyIcon: {
     width: 64,
@@ -534,7 +563,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 10,
   },
-  bigMeText: { color: '#fff', fontWeight: '800', fontSize: 24 },
+  bigMeText: { fontWeight: '700', fontSize: 24 },
   name: { fontSize: 19, fontWeight: '800' },
   meta: { fontSize: 13 },
   stats: {

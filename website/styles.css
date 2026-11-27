@@ -57,6 +57,87 @@ code {
   font-size: 0.92em;
 }
 
+/* ------------------------------------------------------------ ambient */
+
+/* Big soft shapes drifting behind the page. Transform-only, so it stays cheap. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient i {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  background: var(--c);
+  opacity: 0.16;
+  filter: blur(80px);
+  animation:
+    var(--drift) var(--d) ease-in-out infinite alternate,
+    morph var(--m) ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+:root[data-theme='dark'] .ambient i {
+  opacity: 0.14;
+}
+
+.ambient i:nth-child(1) { --c: #7c3aed; --size: 44vmax; left: -12vmax; top: -14vmax; --drift: drift-a; --d: 13s; --m: 9s; }
+.ambient i:nth-child(2) { --c: #2563eb; --size: 36vmax; right: -10vmax; top: 18vh; --drift: drift-b; --d: 11s; --m: 8s; }
+.ambient i:nth-child(3) { --c: #ea580c; --size: 30vmax; left: 30vw; bottom: -14vmax; --drift: drift-c; --d: 15s; --m: 10s; }
+.ambient i:nth-child(4) { --c: #db2777; --size: 24vmax; left: 8vw; top: 55vh; --drift: drift-d; --d: 12s; --m: 7s; }
+
+@keyframes drift-a {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(22vw, 10vh) rotate(70deg) scale(1.12); }
+  66% { transform: translate(8vw, 26vh) rotate(150deg) scale(0.9); }
+  100% { transform: translate(30vw, 4vh) rotate(220deg) scale(1.05); }
+}
+
+@keyframes drift-b {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(-20vw, 18vh) rotate(-60deg) scale(0.88); }
+  66% { transform: translate(-6vw, -12vh) rotate(-140deg) scale(1.15); }
+  100% { transform: translate(-28vw, 6vh) rotate(-210deg) scale(0.95); }
+}
+
+@keyframes drift-c {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(-24vw, -16vh) rotate(80deg) scale(1.1); }
+  66% { transform: translate(18vw, -24vh) rotate(160deg) scale(0.92); }
+  100% { transform: translate(-8vw, -34vh) rotate(240deg) scale(1.08); }
+}
+
+@keyframes drift-d {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(30vw, -14vh) rotate(-90deg) scale(1.2); }
+  66% { transform: translate(52vw, 8vh) rotate(-170deg) scale(0.9); }
+  100% { transform: translate(20vw, -30vh) rotate(-250deg) scale(1.1); }
+}
+
+@keyframes morph {
+  0% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
+  50% { border-radius: 63% 37% 41% 59% / 58% 62% 38% 42%; }
+  100% { border-radius: 36% 64% 52% 48% / 66% 35% 65% 34%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient i {
+    animation: none;
+    border-radius: 50%;
+  }
+}
+
+.top,
+main,
+.foot {
+  position: relative;
+  z-index: 1;
+}
+
 /* ------------------------------------------------------------ header */
 
 .top {
@@ -418,6 +499,53 @@ h1 {
   color: var(--accent-ink);
   background: var(--text);
   border-color: var(--text);
+}
+
+.controls .swatches {
+  gap: 8px;
+}
+
+.controls .swatch {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--c);
+  border: 1px solid var(--line);
+}
+
+.controls .swatch-default {
+  background: var(--surface);
+  background-image: linear-gradient(135deg, transparent 46%, var(--faint) 46%, var(--faint) 54%, transparent 54%);
+}
+
+.controls input:checked + .swatch {
+  background: var(--c);
+  border-color: var(--surface);
+  box-shadow: 0 0 0 2px var(--text);
+}
+
+.controls input:checked + .swatch-default {
+  background: var(--surface);
+  background-image: linear-gradient(135deg, transparent 46%, var(--faint) 46%, var(--faint) 54%, transparent 54%);
+}
+
+.controls .swatch-custom .swatch {
+  background-image: conic-gradient(from 0deg, #f43f5e, #f59e0b, #22c55e, #0ea5e9, #8b5cf6, #f43f5e);
+}
+
+.controls .swatch-custom input:checked + .swatch {
+  background-image: none;
+}
+
+.controls .swatch-custom input[type='color'] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .controls input:focus-visible + span {
