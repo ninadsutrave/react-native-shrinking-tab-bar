@@ -1,97 +1,103 @@
 # Contributing
 
-Contributions are always welcome, no matter how large or small!
+Thanks for helping improve react-native-shrinking-tab-bar. This guide covers how to set up the project, run the example app and tests, and send a pull request.
 
-We want this community to be friendly and respectful to each other. Please follow it in all your interactions with the project. Before contributing, please read the [code of conduct](./CODE_OF_CONDUCT.md).
+By taking part you agree to follow the [code of conduct](CODE_OF_CONDUCT.md).
 
-## Development workflow
+## Before you start
 
-This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/features/workspaces). It contains the following packages:
+- **Bugs:** open an issue with the bug report form. A minimal reproduction (a Snack, a repo, or the example app with your settings) gets it fixed much faster.
+- **Features and API changes:** open an issue first and describe the use case. It's easier to agree on the API before code is written, and it avoids a pull request that can't be merged.
+- **Small fixes** (typos, docs, an obvious bug with a test): go straight to a pull request.
 
-- The library package in the root directory.
-- An example app in the `example/` directory.
+## Project layout
 
-To get started with the project, make sure you have the correct version of [Node.js](https://nodejs.org/) installed. See the [`.nvmrc`](./.nvmrc) file for the version used in this project.
+```
+src/                 the library
+  ShrinkingTabBar.tsx  the bar: layout, state, animation
+  TabItem.tsx          one tab
+  Capsule.tsx          the transform-only rounded pill
+  ActionButton.tsx     the round button beside the bar
+  glass.tsx            the optional glass background (separate entry point)
+  scroll.ts            the pure collapse state machine
+  hooks.ts             scroll hooks and controls
+  store.tsx            shared state, with an optional Provider
+test/                unit tests (Node) and component tests (Jest)
+example/             Expo app with a Tweak tab that toggles every option
+```
 
-Run `yarn` in the root directory to install the required dependencies for each package:
+## Setup
+
+You need Node (the version in `.nvmrc`) and Yarn 4 through Corepack:
 
 ```sh
+corepack enable
 yarn
 ```
 
-> Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development without manually migrating.
+This is a Yarn workspace. Don't use npm to install, it won't link the example app to the library.
 
-The [example app](/example/) demonstrates usage of the library. You need to run it to test any changes you make.
-
-It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
-
-You can use various commands from the root directory to work with the project.
-
-To start the packager:
+## Running the example app
 
 ```sh
 yarn example start
 ```
 
-To run the example app on Android:
+Open it in Expo Go (SDK 57) on a device, the iOS Simulator or an Android emulator. The example imports the library's source directly, so edits in `src/` show up with fast refresh.
+
+Please check visual changes on **both iOS and Android**. The two platforms differ in shadows, blur, group opacity and text rendering, and several past bugs only showed up on one of them.
+
+## Checks
+
+Run these before opening a pull request. CI runs the same ones.
 
 ```sh
-yarn example android
+yarn lint        # ESLint and Prettier
+yarn typecheck   # TypeScript
+yarn test        # Node unit tests + Jest component tests
+yarn prepare     # builds lib/ with react-native-builder-bob
 ```
 
-To run the example app on iOS:
+`yarn lint --fix` fixes formatting.
 
-```sh
-yarn example ios
-```
+### Tests
 
-To run the example app on Web:
+- `test/scroll.test.mts` covers the collapse state machine with Node's built-in test runner. Add cases here for any change to scroll behaviour.
+- `test/ShrinkingTabBar.test.tsx` covers the components and hooks with Jest and React Native Testing Library. Its `render`, `fireEvent` and `act` are async, so `await` them.
 
-```sh
-yarn example web
-```
+Animations don't run in Jest. Tests can check what an option renders and does, but not how it looks, so visual changes still need a device check.
 
-Make sure your code passes TypeScript:
+## Guidelines
 
-```sh
-yarn typecheck
-```
+- **Performance:** animate with transforms and opacity, never width, height or position. If something truly can't be drawn that way, keep the layout animation to one small box and document it, as `renderBackground` does.
+- **Worklets:** capture shared values in worklets, never objects that hold functions (such as the store). Reanimated copies whatever a worklet captures to the UI thread.
+- **Animated styles:** always return every property from `useAnimatedStyle`. A property you stop returning keeps its last value.
+- **RTL:** the bar lays out left to right internally and mirrors itself. Keep new geometry in physical coordinates and test with `direction="rtl"`.
+- **Accessibility:** every pressable needs a role and a label, including when text is hidden.
+- **Options:** new props should have a sensible default, a doc comment in `src/types.ts`, a row in the README tables, and a toggle in the example's Tweak tab when it's visual.
+- **Dependencies:** the core must not depend on Expo packages. Optional integrations go in their own entry point, like `/glass`.
 
-To check for linting errors, run the following:
+## Commit messages
 
-```sh
-yarn lint
-```
+Use [Conventional Commits](https://www.conventionalcommits.org/):
 
-To fix formatting errors, run the following:
+- `fix:` a bug fix
+- `feat:` a new feature or option
+- `refactor:` a code change that is neither
+- `docs:` documentation only
+- `test:` tests only
+- `chore:` tooling and config
 
-```sh
-yarn lint --fix
-```
+For example: `fix: keep labels visible after toggling keepLabelsWhenCollapsed`.
 
+## Pull requests
 
+- Keep each pull request to one change.
+- Fill in the template: what changed, why, and how you tested it on each platform.
+- Add or update tests for behaviour changes.
+- Update the README and `CHANGELOG.md` (under "Unreleased") for anything users will notice.
+- CI must pass.
 
-### Scripts
+## Releases
 
-The `package.json` file contains various scripts for common tasks:
-
-- `yarn`: setup project by installing dependencies.
-- `yarn typecheck`: type-check files with TypeScript.
-- `yarn lint`: lint files with [ESLint](https://eslint.org/).
-- `yarn example start`: start the Metro server for the example app.
-- `yarn example android`: run the example app on Android.
-- `yarn example ios`: run the example app on iOS.
-- `yarn example web`: run the example app on Web.
-- `yarn example build:web`: build the example app for Web.
-
-### Sending a pull request
-
-> **Working on your first pull request?** You can learn how from this _free_ series: [How to Contribute to an Open Source Project on GitHub](https://app.egghead.io/playlists/how-to-contribute-to-an-open-source-project-on-github).
-
-When you're sending a pull request:
-
-- Prefer small pull requests focused on one change.
-- Verify that linters and tests are passing.
-- Review the documentation to make sure it looks good.
-- Follow the pull request template when opening a pull request.
-- For pull requests that change the API or implementation, discuss with maintainers first by opening an issue.
+Maintainers release from `main`. The version follows [Semantic Versioning](https://semver.org/); while the package is 0.x, minor versions may include breaking changes, and the changelog calls them out.

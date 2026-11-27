@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-dependencies:
+        dependency-type: development
+    # The example app pins versions to its Expo SDK; upgrade those with `npx expo install --fix`.
+    ignore:
+      - dependency-name: react
+      - dependency-name: react-native
+      - dependency-name: react-native-reanimated
+      - dependency-name: react-native-worklets
+      - dependency-name: 'expo*'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

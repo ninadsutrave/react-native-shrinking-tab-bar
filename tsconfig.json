@@ -2,7 +2,12 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-shrinking-tab-bar": ["./src/index"]
+      "react-native-shrinking-tab-bar": [
+        "./src/index"
+      ],
+      "react-native-shrinking-tab-bar/glass": [
+        "./src/glass"
+      ]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -13,7 +18,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
@@ -26,6 +33,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true
   }
 }

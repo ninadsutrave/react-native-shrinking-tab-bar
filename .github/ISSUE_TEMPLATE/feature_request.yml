@@ -1,0 +1,32 @@
+name: 💡 Feature request
+description: Suggest an option, a behaviour or an improvement.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to build, and what's getting in the way? Screenshots of a design or another app help.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How you'd like it to work, ideally with the props or hooks you'd expect to use.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Workarounds you tried, such as renderTab or renderBackground.
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Platforms
+      multiple: true
+      options:
+        - iOS
+        - Android
+        - Web
