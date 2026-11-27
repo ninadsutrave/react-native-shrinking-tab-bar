@@ -133,7 +133,13 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
   const { width: windowWidth } = useWindowDimensions();
 
   const isDark = theme === 'dark' || (theme === 'auto' && scheme === 'dark');
-  const colors = { ...(isDark ? DARK_COLORS : LIGHT_COLORS), ...props.colors };
+  const merged = { ...(isDark ? DARK_COLORS : LIGHT_COLORS), ...props.colors };
+  // The action button follows the bar's colours unless it's given its own.
+  const colors = {
+    ...merged,
+    actionBackground: props.colors?.actionBackground ?? merged.background,
+    actionTint: props.colors?.actionTint ?? merged.activeTint,
+  };
   const sizes = resolveSizes(props.sizes);
   const indicatorAnim = indicatorAnimation ?? animation;
 
@@ -602,6 +608,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
   return (
     <Animated.View
       pointerEvents="box-none"
+      {...LTR_PROPS}
       style={[
         styles.wrapper,
         {
@@ -724,9 +731,14 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
   );
 }
 
+// The bar lays itself out left to right and mirrors itself for RTL. Native
+// uses the `direction` style; React Native Web uses the `dir` attribute.
+const LTR_STYLE = Platform.OS === 'web' ? {} : { direction: 'ltr' as const };
+const LTR_PROPS = (Platform.OS === 'web' ? { dir: 'ltr' } : {}) as object;
+
 const styles = StyleSheet.create({
   wrapper: {
-    direction: 'ltr',
+    ...LTR_STYLE,
     position: 'absolute',
     left: 0,
     right: 0,

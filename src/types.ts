@@ -19,6 +19,10 @@ export interface ShrinkingTabBarColors {
   shadow: string;
   badge: string;
   badgeText: string;
+  /** Action button fill. Defaults to `background`. */
+  actionBackground: string;
+  /** Action button icon colour. Defaults to `activeTint`. */
+  actionTint: string;
 }
 
 export interface ShrinkingTabBarSizeState {

@@ -82,7 +82,12 @@ const vibrant: ShrinkingTabBarPreset = {
   indicatorTransition: 'stretch',
   tabFocusAnimation: 'pop',
   // White on #7C3AED is 5.7:1, above WCAG AA for text.
-  colors: { indicator: '#7C3AED', activeTint: '#FFFFFF' },
+  colors: {
+    indicator: '#7C3AED',
+    activeTint: '#FFFFFF',
+    actionBackground: '#7C3AED',
+    actionTint: '#FFFFFF',
+  },
 };
 
 const fullWidth: ShrinkingTabBarPreset = {

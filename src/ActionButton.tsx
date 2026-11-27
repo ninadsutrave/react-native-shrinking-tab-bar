@@ -59,8 +59,8 @@ export function ActionButton({
       ? 'opacity'
       : pressFeedback;
   const radius = size / 2;
-  const color = options.color ?? colors.activeTint;
-  const background = options.backgroundColor ?? colors.background;
+  const color = options.color ?? colors.actionTint;
+  const background = options.backgroundColor ?? colors.actionBackground;
   const border = options.borderColor ?? colors.border;
 
   const boxStyle = useAnimatedStyle(() => {

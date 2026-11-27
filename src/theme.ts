@@ -6,6 +6,8 @@ import type {
 
 export const DARK_COLORS: ShrinkingTabBarColors = {
   background: '#1E1E22',
+  actionBackground: '#1E1E22',
+  actionTint: '#FFFFFF',
   border: 'rgba(255, 255, 255, 0.10)',
   activeTint: '#FFFFFF',
   inactiveTint: 'rgba(235, 235, 245, 0.62)',
@@ -17,6 +19,8 @@ export const DARK_COLORS: ShrinkingTabBarColors = {
 
 export const LIGHT_COLORS: ShrinkingTabBarColors = {
   background: '#FFFFFF',
+  actionBackground: '#FFFFFF',
+  actionTint: '#111114',
   border: 'rgba(0, 0, 0, 0.08)',
   activeTint: '#111114',
   inactiveTint: 'rgba(60, 60, 67, 0.64)',

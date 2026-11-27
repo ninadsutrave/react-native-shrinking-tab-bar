@@ -1,5 +1,9 @@
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
-import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import {
+  Platform,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import {
   useAnimatedScrollHandler,
   useSharedValue,
@@ -51,12 +55,16 @@ export function useShrinkingTabBarScrollHandler(
   const store = useTabBarStore();
   const override = useBehaviorOverride(options.behavior);
   const tracker = useSharedValue<ScrollTracker>({ lastY: 0, travel: 0 });
+  // On the web, React Native Web's scroll events don't reach Reanimated's
+  // scroll handler, and worklets run on the JS thread there anyway, so the
+  // plain listener (same state machine) is used instead.
+  const webListener = useShrinkingTabBarScrollListener(options);
   const hasOverride = Object.keys(override).length > 0;
   // Worklets copy what they capture to the UI thread, so capture only the
   // shared values, never the whole store (it holds JS functions).
   const { collapsed, behavior: behaviorSV } = store;
 
-  return useAnimatedScrollHandler(
+  const handler = useAnimatedScrollHandler(
     {
       onScroll: (e: ReanimatedEvent<NativeScrollEvent>) => {
         if (!enabled) return;
@@ -81,6 +89,9 @@ export function useShrinkingTabBarScrollHandler(
     },
     [enabled, inverted, override, hasOverride, collapsed, behaviorSV]
   );
+  return Platform.OS === 'web'
+    ? (webListener as unknown as typeof handler)
+    : handler;
 }
 
 /**

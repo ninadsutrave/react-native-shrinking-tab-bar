@@ -109,6 +109,8 @@ function Home() {
 
 `useShrinkingTabBarScrollHandler` works with `Animated.ScrollView`, `Animated.FlatList` and any list wrapped in `Animated.createAnimatedComponent`. It runs on the UI thread.
 
+**On the web,** Reanimated's animated lists don't pass scroll events on, so use a regular `FlatList` or `ScrollView` there. `useShrinkingTabBarScrollHandler` returns a plain callback on the web, so the same hook works with them.
+
 For a list that isn't a Reanimated component (FlashList, SectionList, a third-party list), use the plain-callback version instead:
 
 ```tsx
@@ -154,7 +156,7 @@ To hide the bar on one screen, set `tabBarStyle: { display: 'none' }` in that sc
 | --- | --- | --- |
 | `theme` | `'auto'` | `'light'`, `'dark'`, or follow the system. |
 | `direction` | `'auto'` | `'auto'` follows `I18nManager.isRTL`. `'rtl'` puts the first tab on the right. |
-| `colors` | | `background`, `border`, `activeTint`, `inactiveTint`, `indicator`, `shadow`, `badge`, `badgeText`. |
+| `colors` | | `background`, `border`, `activeTint`, `inactiveTint`, `indicator`, `shadow`, `badge`, `badgeText`, `actionBackground`, `actionTint`. The last two default to `background` and `activeTint`. |
 | `sizes.expanded` | `{ itemWidth: 84, height: 66 }` | Size of each tab and the bar when expanded. |
 | `sizes.collapsed` | `{ itemWidth: 60, height: 50 }` | The same, collapsed. |
 | `sizes.iconSize` | `24` | Passed to `tabBarIcon` as `size`. |
