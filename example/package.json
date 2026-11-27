@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
-    "@expo/metro-runtime": "~57.0.19",
+    "@expo/metro-runtime": "~58.0.17",
     "@expo/vector-icons": "^15.0.2",
     "@react-navigation/bottom-tabs": "^7.22.0",
     "@react-navigation/native": "^7.5.2",
