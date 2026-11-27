@@ -386,4 +386,4 @@ Bug reports, ideas and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBU
 
 ## License
 
-[MIT](LICENSE) © Ninad Sutrave
+[MIT](LICENSE) © [Ninad Sutrave](https://ninadsutrave.com)
