@@ -14,6 +14,7 @@ export {
   type ScrollBehavior,
 } from './scroll';
 export { DARK_COLORS, LIGHT_COLORS, DEFAULT_SIZES } from './theme';
+export { combine, presets, type ShrinkingTabBarPreset } from './presets';
 export type {
   ActionButtonOptions,
   IndicatorRenderProps,

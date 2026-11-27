@@ -13,7 +13,7 @@ A floating pill tab bar for React Navigation and Expo Router. It shrinks to icon
 - [Install](#install)
 - [Usage](#usage)
 - [Options](#options)
-- [Glass](#glass) · [Action button](#action-button) · [Selected tab style](#selected-tab-style) · [Custom tab content](#custom-tab-content)
+- [Presets](#presets) · [Glass](#glass) · [Action button](#action-button) · [Selected tab style](#selected-tab-style) · [Custom tab content](#custom-tab-content)
 - [Right-to-left languages](#right-to-left-languages)
 - [Controlling it from code](#controlling-it-from-code)
 - [Hooks reference](#hooks-reference)
@@ -171,6 +171,38 @@ To hide the bar on one screen, set `tabBarStyle: { display: 'none' }` in that sc
 | `pressFeedback` | `'scale'` | `'scale'`, `'opacity'`, `'ripple'` (Android; opacity on iOS) or `'none'`. |
 | `style`, `itemStyle`, `labelStyle`, `badgeStyle`, `badgeTextStyle` | | Style overrides. |
 
+### Presets
+
+Ready-made looks, spread in like any options:
+
+```tsx
+import { presets } from 'react-native-shrinking-tab-bar';
+
+<ShrinkingTabBar {...props} {...presets.vibrant} />
+```
+
+| Preset | Look |
+| --- | --- |
+| `minimal` | No indicator, border or shadow. The active tab is shown by colour, with a small pop on select. |
+| `compact` | Smaller tabs and a lower bar, for 5 tabs or small screens. |
+| `vibrant` | Solid violet indicator with white icons, a stretchy switch and a pop. |
+| `fullWidth` | Spans the screen, with softer corners. |
+| `hideOnScroll` | Slides away entirely on scroll down. |
+
+To mix presets, glass and your own options, use `combine()`. Later parts win, and nested options (`colors`, `sizes`, `behavior`, `shadow`) merge key by key, so changing one colour keeps the rest. Falsy parts are skipped:
+
+```tsx
+import { combine, presets } from 'react-native-shrinking-tab-bar';
+import { glass } from 'react-native-shrinking-tab-bar/glass';
+
+<ShrinkingTabBar
+  {...props}
+  {...combine(presets.compact, useGlass && glass(), {
+    colors: { activeTint: '#FFFFFF' },
+  })}
+/>
+```
+
 ### Animation
 
 ```tsx
@@ -201,7 +233,7 @@ It uses the best glass each platform has:
 - **Older iOS:** the system material blur (`expo-blur`).
 - **Android and web:** a frosted fill with a light top edge. There's no system glass there, and a live blur costs too much for a bar that sits on every screen.
 
-Options: `glass({ scheme, variant, tintColor, interactive, blurIntensity, fallbackColor })`. `scheme` is `'auto'`, `'light'` or `'dark'`; `variant` is Liquid Glass's `'regular'` or `'clear'`. If you also pass `colors`, merge them: `colors={{ ...glass().colors, activeTint: '#fff' }}`.
+Options: `glass({ scheme, variant, tintColor, interactive, blurIntensity, fallbackColor })`. `scheme` is `'auto'`, `'light'` or `'dark'`; `variant` is Liquid Glass's `'regular'` or `'clear'`. To change colours as well, merge with `combine(glass(), { colors: { activeTint: '#fff' } })`; passing `colors` on its own would replace glass's colours.
 
 The glass import is separate, so apps that don't use it never need the Expo modules.
 
@@ -335,6 +367,8 @@ yarn example start
 Open it in Expo Go. The Tweak tab switches every visual option live.
 
 ## Troubleshooting
+
+In development, the bar warns once in the console about common setup mistakes: more than 5 tabs, tabs without an icon (they'd be empty when collapsed), an opaque `colors.background` covering a custom background or glass, an action button without an accessibility label, and two bars sharing state without their own Providers. These checks are skipped in production builds.
 
 **The bar never collapses.** Check that the list uses one of the scroll hooks and has `scrollEventThrottle={16}`. With `useShrinkingTabBarScrollHandler`, the list must be a Reanimated component (`Animated.FlatList`, not `FlatList`). Short screens never collapse: there has to be more content than fits.
 

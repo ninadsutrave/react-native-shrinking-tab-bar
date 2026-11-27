@@ -9,12 +9,15 @@ import {
 } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import {
+  combine,
+  presets,
   ShrinkingTabBar,
   ShrinkingTabBarProvider,
   useShrinkingTabBar,
   useShrinkingTabBarScrollListener,
   type ShrinkingTabBarProps,
 } from '../src';
+import { resetWarnings } from '../src/warnings';
 
 type RouteSpec = { name: string; options?: Record<string, unknown> };
 
@@ -328,5 +331,128 @@ describe('hooks', () => {
       } as never)
     );
     expect(result.current.bar.collapsed.value).toBe(false);
+  });
+});
+
+describe('combine and presets', () => {
+  it('merges nested colours and sizes key by key, later parts winning', () => {
+    const out = combine(
+      {
+        colors: { activeTint: '#111', badge: '#f00' },
+        sizes: { expanded: { height: 70 } },
+      },
+      { colors: { activeTint: '#222' }, sizes: { expanded: { itemWidth: 90 } } }
+    );
+    expect(out.colors).toEqual({ activeTint: '#222', badge: '#f00' });
+    expect(out.sizes).toEqual({ expanded: { height: 70, itemWidth: 90 } });
+  });
+
+  it('skips falsy parts and ignores undefined values', () => {
+    const out = combine(presets.compact, false, null, undefined, {
+      bottomOffset: undefined,
+    });
+    expect(out.bottomOffset).toBe(8);
+  });
+
+  it('replaces animation configs instead of mixing them', () => {
+    const out = combine(
+      { animation: { type: 'timing', duration: 300 } },
+      { animation: { type: 'spring', damping: 10 } }
+    );
+    expect(out.animation).toEqual({ type: 'spring', damping: 10 });
+  });
+
+  it('keeps functions such as renderBackground', () => {
+    const renderBackground = () => null;
+    const out = combine(presets.vibrant, { renderBackground });
+    expect(out.renderBackground).toBe(renderBackground);
+    expect(out.colors?.indicator).toBe('#7C3AED');
+  });
+
+  it.each(Object.keys(presets) as (keyof typeof presets)[])(
+    'renders with the %s preset',
+    async (name) => {
+      await setup(THREE, 0, presets[name]);
+      expect(screen.getAllByRole('tab')).toHaveLength(3);
+    }
+  );
+
+  it('minimal hides the indicator', async () => {
+    await setup(THREE, 0, {
+      ...presets.minimal,
+      renderIndicator: () => <Text>ind</Text>,
+    });
+    expect(screen.queryByText('ind')).toBeNull();
+  });
+});
+
+describe('development warnings', () => {
+  let warn: jest.SpyInstance;
+  beforeEach(() => {
+    resetWarnings();
+    warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+  afterEach(() => warn.mockRestore());
+
+  const messages = () => warn.mock.calls.map((c) => String(c[0]));
+
+  it('warns about more than 5 tabs', async () => {
+    await setup(['A', 'B', 'C', 'D', 'E', 'F'].map((name) => ({ name })));
+    expect(messages().some((m) => m.includes('6 tabs'))).toBe(true);
+  });
+
+  it('warns about tabs without an icon', async () => {
+    await setup([
+      { name: 'Home' },
+      { name: 'Bare', options: { tabBarIcon: undefined } },
+    ]);
+    expect(messages().some((m) => m.includes('No tabBarIcon for: Bare'))).toBe(
+      true
+    );
+  });
+
+  it('warns when an opaque background covers renderBackground', async () => {
+    await setup(THREE, 0, {
+      renderBackground: () => null,
+      colors: { background: '#000000' },
+    });
+    expect(messages().some((m) => m.includes('opaque colors.background'))).toBe(
+      true
+    );
+  });
+
+  it('does not warn for a transparent background', async () => {
+    await setup(THREE, 0, {
+      renderBackground: () => null,
+      colors: { background: 'transparent' },
+    });
+    expect(messages().some((m) => m.includes('opaque'))).toBe(false);
+  });
+
+  it('warns when two bars share one store', async () => {
+    const routes = [{ key: 'h', name: 'Home', params: undefined }];
+    const props = {
+      state: { index: 0, routes, key: 'tabs', routeNames: ['Home'] },
+      descriptors: { h: { options: { tabBarIcon: () => null } } },
+      navigation: {
+        emit: jest.fn(() => ({ defaultPrevented: false })),
+        navigate: jest.fn(),
+      },
+      insets: { top: 0, bottom: 0, left: 0, right: 0 },
+    } as unknown as ShrinkingTabBarProps & BottomTabBarProps;
+    await render(
+      <ShrinkingTabBarProvider>
+        <ShrinkingTabBar {...props} />
+        <ShrinkingTabBar {...props} />
+      </ShrinkingTabBarProvider>
+    );
+    expect(messages().some((m) => m.includes('sharing collapse state'))).toBe(
+      true
+    );
+  });
+
+  it('stays quiet for a normal setup', async () => {
+    await setup(THREE);
+    expect(warn).not.toHaveBeenCalled();
   });
 });

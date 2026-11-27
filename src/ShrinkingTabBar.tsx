@@ -1,4 +1,7 @@
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import type {
+  BottomTabBarProps,
+  BottomTabNavigationOptions,
+} from '@react-navigation/bottom-tabs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   I18nManager,
@@ -28,6 +31,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton, type ActionButtonFrame } from './ActionButton';
 import { Capsule, type CapsuleFrame, type CapsuleShadow } from './Capsule';
 import { DEFAULT_SCROLL_BEHAVIOR } from './scroll';
+import { checkSetup } from './warnings';
 import { useTabBarStore } from './store';
 import { TabItem, type TabGeometry, type TabItemDescriptor } from './TabItem';
 import { DARK_COLORS, LIGHT_COLORS, resolveSizes } from './theme';
@@ -49,12 +53,16 @@ export function animateTo(to: number, animation: ShrinkingTabBarAnimation) {
     : withTiming(to, config as WithTimingConfig);
 }
 
-function isHiddenRoute(options: object): boolean {
-  const o = options as { href?: unknown; tabBarItemStyle?: unknown };
-  if (o.href === null) return true;
-  const style = StyleSheet.flatten(o.tabBarItemStyle as never) as
-    { display?: string } | undefined;
-  return style?.display === 'none';
+/** Expo Router adds `href` to the tab options; `null` hides the route. */
+type TabOptions = BottomTabNavigationOptions & { href?: string | null };
+
+function isDisplayNone(style: TabOptions['tabBarStyle']): boolean {
+  return StyleSheet.flatten(style)?.display === 'none';
+}
+
+function isHiddenRoute(options: TabOptions | undefined): boolean {
+  if (!options) return false;
+  return options.href === null || isDisplayNone(options.tabBarItemStyle);
 }
 
 /**
@@ -144,7 +152,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
 
   // Routes shown as tabs (Expo Router `href: null` and display:none are skipped).
   const routes = state.routes.filter(
-    (r) => !isHiddenRoute(descriptors[r.key]?.options ?? {})
+    (r) => descriptors[r.key] && !isHiddenRoute(descriptors[r.key]?.options)
   );
   const activeRoute = state.routes[state.index];
   const activeIndex = routes.findIndex((r) => r.key === activeRoute?.key);
@@ -158,9 +166,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
   const focusedOptions = activeRoute
     ? descriptors[activeRoute.key]?.options
     : undefined;
-  const hiddenByScreen =
-    (StyleSheet.flatten(focusedOptions?.tabBarStyle) as { display?: string })
-      ?.display === 'none';
+  const hiddenByScreen = isDisplayNone(focusedOptions?.tabBarStyle);
 
   // ---- geometry: plain numbers, so worklets interpolate without measuring
   const icons = collapseMode === 'icons';
@@ -223,6 +229,29 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
   useEffect(() => {
     store.occupiedHeight.set(eH + bottomOffset);
   }, [store, eH, bottomOffset]);
+
+  // ---- development checks
+  useEffect(() => {
+    store.bars.count += 1;
+    return () => {
+      store.bars.count -= 1;
+    };
+  }, [store]);
+  const routesWithoutIcon = routes
+    .filter((r) => !descriptors[r.key]?.options.tabBarIcon)
+    .map((r) => r.name);
+  useEffect(() => {
+    checkSetup({
+      tabCount: routes.length,
+      routesWithoutIcon,
+      hasCustomTabs: !!renderTab,
+      hasCustomBackground: !!renderBackground,
+      background: colors.background,
+      hasActionButton: !!actionButton,
+      actionButtonLabel: actionButton?.accessibilityLabel,
+      barsOnStore: store.bars.count,
+    });
+  });
 
   // ---- collapse progress
   const callbackRef = useRef(onCollapseChange);
@@ -419,7 +448,8 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
 
   // ---- press handling (mirrors React Navigation's default tab bar)
   const items: TabItemDescriptor[] = routes.map((route) => {
-    const options = descriptors[route.key]!.options;
+    // routes only contains keys that have a descriptor (filtered above)
+    const options = descriptors[route.key]?.options ?? {};
     const focused = route.key === activeRoute?.key;
     const title =
       typeof options.tabBarLabel === 'string'
@@ -439,14 +469,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
         onTabPress?.(route.name, focused);
         // Same event and data as React Navigation's own tab bar, so
         // useScrollToTop and tabBarRepeatedPressBehavior keep working.
-        const repeat = (
-          options as {
-            tabBarRepeatedPressBehavior?: {
-              scrollToTop?: boolean;
-              popToTop?: boolean;
-            };
-          }
-        ).tabBarRepeatedPressBehavior;
+        const repeat = options.tabBarRepeatedPressBehavior;
         const event = navigation.emit({
           type: 'tabPress',
           target: route.key,
@@ -457,13 +480,10 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
               popToTop: focused && repeat?.popToTop !== false,
             },
           },
-        } as never) as unknown as { defaultPrevented: boolean };
+        });
         if (focused && expandOnFocusedTabPress) store.collapsed.value = false;
         if (!focused && !event.defaultPrevented) {
-          (navigation.navigate as (name: string, params?: object) => void)(
-            route.name,
-            route.params
-          );
+          navigation.navigate(route.name, route.params);
         }
       },
       onLongPress: () => {
@@ -573,8 +593,8 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
                   height={indicatorBoxH}
                   radius={indicatorRadius}
                   color={
-                    (focusedOptions?.tabBarActiveBackgroundColor as
-                      string | undefined) ?? colors.indicator
+                    focusedOptions?.tabBarActiveBackgroundColor ??
+                    colors.indicator
                   }
                   borderColor="transparent"
                   borderWidth={0}

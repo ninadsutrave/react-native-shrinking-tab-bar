@@ -160,6 +160,15 @@ export function TabItem({
   });
 
   const showLabel = options.tabBarShowLabel !== false;
+  // React Navigation's tabBarBadgeStyle is a text style; text properties go
+  // to the number and the rest (background, size, position) to the badge.
+  const {
+    color: badgeColor,
+    fontSize: badgeFontSize,
+    fontWeight: badgeFontWeight,
+    fontFamily: badgeFontFamily,
+    ...badgeBoxStyle
+  } = StyleSheet.flatten(options.tabBarBadgeStyle) ?? {};
   const badge = options.tabBarBadge;
 
   let content: ReactNode;
@@ -226,7 +235,7 @@ export function TabItem({
                 rtl ? (badge === '' ? styles.dotRtl : styles.badgeRtl) : null,
                 { backgroundColor: colors.badge },
                 badgeStyle,
-                options.tabBarBadgeStyle as StyleProp<ViewStyle>,
+                badgeBoxStyle,
               ]}
             >
               {badge !== '' ? (
@@ -237,6 +246,12 @@ export function TabItem({
                     styles.badgeText,
                     { color: colors.badgeText },
                     badgeTextStyle,
+                    {
+                      color: badgeColor,
+                      fontSize: badgeFontSize,
+                      fontWeight: badgeFontWeight,
+                      fontFamily: badgeFontFamily,
+                    },
                   ]}
                 >
                   {badge}

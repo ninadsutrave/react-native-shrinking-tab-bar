@@ -15,6 +15,8 @@ export interface TabBarStore {
   /** Behaviour set on the bar; scroll hooks can override it per screen. */
   behavior: SharedValue<ScrollBehavior>;
   /** Space the expanded bar covers above the bottom safe area, in points. */
+  /** How many bars are mounted on this store (for the dev warning). */
+  bars: { count: number };
   occupiedHeight: {
     get: () => number;
     set: (value: number) => void;
@@ -30,6 +32,7 @@ export function createTabBarStore(): TabBarStore {
     progress: makeMutable(0),
     hidden: makeMutable(0),
     behavior: makeMutable<ScrollBehavior>(DEFAULT_SCROLL_BEHAVIOR),
+    bars: { count: 0 },
     occupiedHeight: {
       get: () => height,
       set: (value) => {

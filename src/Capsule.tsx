@@ -1,4 +1,9 @@
-import { processColor, StyleSheet, type ViewStyle } from 'react-native';
+import {
+  processColor,
+  StyleSheet,
+  type ColorValue,
+  type ViewStyle,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   type DerivedValue,
@@ -28,8 +33,8 @@ interface Props {
   height: number;
   /** Corner radius at full height. Clamped to height / 2. */
   radius: number;
-  color: string;
-  borderColor: string;
+  color: ColorValue;
+  borderColor: ColorValue;
   borderWidth: number;
   frame: DerivedValue<CapsuleFrame>;
   shadow?: CapsuleShadow;
@@ -37,21 +42,23 @@ interface Props {
    * Opaque colour directly behind the capsule, if known. A see-through fill
    * is then blended with it up front, so nothing is composited offscreen.
    */
-  backdrop?: string;
+  backdrop?: ColorValue;
   style?: ViewStyle;
 }
 
 /** Extra width the middle piece tucks under each cap, to hide seams. */
 const OVERLAP = 1;
 
-function rgba(color: string): [number, number, number, number] | null {
+type RGBA = [number, number, number, number];
+
+function rgba(color: ColorValue): RGBA | null {
   const c = processColor(color);
   if (typeof c !== 'number') return null;
   const n = c >>> 0;
   return [(n >>> 16) & 255, (n >>> 8) & 255, n & 255, ((n >>> 24) & 255) / 255];
 }
 
-function borderColorIsInvisible(border: string) {
+function borderColorIsInvisible(border: ColorValue) {
   const b = rgba(border);
   return border === 'transparent' || (b !== null && b[3] === 0);
 }
@@ -61,7 +68,11 @@ function borderColorIsInvisible(border: string) {
  * seams. Instead draw the pieces opaque and fade the whole group once,
  * which iOS and Android both composite as a single layer.
  */
-function splitAlpha(fill: string, border: string, backdrop?: string) {
+function splitAlpha(
+  fill: ColorValue,
+  border: ColorValue,
+  backdrop?: ColorValue
+) {
   const f = rgba(fill);
   if (!f || f[3] >= 1 || f[3] <= 0) {
     return { fill, border, opacity: 1 };
@@ -70,8 +81,14 @@ function splitAlpha(fill: string, border: string, backdrop?: string) {
   const bg = backdrop ? rgba(backdrop) : null;
   if (bg && bg[3] >= 1 && borderColorIsInvisible(border)) {
     const a = f[3];
-    const mix = (i: number) => Math.round(f[i]! * a + bg[i]! * (1 - a));
-    return { fill: `rgb(${mix(0)}, ${mix(1)}, ${mix(2)})`, border, opacity: 1 };
+    const [fr, fg, fb] = f;
+    const [br, bgG, bb] = bg;
+    const mix = (x: number, y: number) => Math.round(x * a + y * (1 - a));
+    return {
+      fill: `rgb(${mix(fr, br)}, ${mix(fg, bgG)}, ${mix(fb, bb)})`,
+      border,
+      opacity: 1,
+    };
   }
   const alpha = f[3];
   const b = rgba(border);

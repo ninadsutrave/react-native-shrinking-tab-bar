@@ -31,6 +31,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import {
+  presets,
   ShrinkingTabBar,
   useShrinkingTabBar,
   useShrinkingTabBarInset,
@@ -56,6 +57,7 @@ interface Settings {
   transition: IndicatorTransition;
   pop: boolean;
   defaultBar: boolean;
+  preset: 'none' | keyof typeof presets;
   stressJS: boolean;
   keepLabels: boolean;
   pressFeedback: PressFeedback;
@@ -74,6 +76,7 @@ const DEFAULTS: Settings = {
   transition: 'slide',
   pop: false,
   defaultBar: false,
+  preset: 'none',
   stressJS: false,
   keepLabels: false,
   pressFeedback: 'scale',
@@ -244,6 +247,19 @@ function PlaygroundScreen() {
       contentContainerStyle={{ paddingBottom: inset + 400 }}
     >
       <Header title="Playground" />
+      <Chips
+        label="Preset"
+        value={s.preset}
+        onChange={(preset) => set({ preset })}
+        options={[
+          { label: 'None', value: 'none' },
+          { label: 'Minimal', value: 'minimal' },
+          { label: 'Compact', value: 'compact' },
+          { label: 'Vibrant', value: 'vibrant' },
+          { label: 'Full width', value: 'fullWidth' },
+          { label: 'Hide on scroll', value: 'hideOnScroll' },
+        ]}
+      />
       <Chips
         label="Theme"
         value={s.dark}
@@ -498,6 +514,7 @@ function Tabs() {
                         ),
                       }
                     : null)}
+                {...(s.preset === 'none' ? null : presets[s.preset])}
                 onTabPress={() => Haptics.selectionAsync()}
               />
             )
