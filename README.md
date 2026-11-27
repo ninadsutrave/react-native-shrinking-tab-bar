@@ -3,7 +3,7 @@
 A floating pill tab bar for React Navigation and Expo Router. It shrinks to icons when you scroll down and comes back when you scroll up.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ninadsutrave/react-native-shrinking-tab-bar/main/docs/shrink.gif" alt="The tab bar shrinking to icons as the feed scrolls down, and expanding again on scroll up" width="300" />
+  <img src="https://raw.githubusercontent.com/ninadsutrave/react-native-shrinking-tab-bar/main/docs/customise.gif" alt="Changing the preset, active tab colour, glass and action button in the live demo, scrolling the feed after each change so the bar shrinks and expands" width="420" />
 </p>
 
 <p align="center"><a href="https://ninadsutrave.github.io/react-native-shrinking-tab-bar/">Try the live demo</a></p>
