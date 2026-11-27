@@ -33,6 +33,11 @@ interface Props {
   borderWidth: number;
   frame: DerivedValue<CapsuleFrame>;
   shadow?: CapsuleShadow;
+  /**
+   * Opaque colour directly behind the capsule, if known. A see-through fill
+   * is then blended with it up front, so nothing is composited offscreen.
+   */
+  backdrop?: string;
   style?: ViewStyle;
 }
 
@@ -46,15 +51,27 @@ function rgba(color: string): [number, number, number, number] | null {
   return [(n >>> 16) & 255, (n >>> 8) & 255, n & 255, ((n >>> 24) & 255) / 255];
 }
 
+function borderColorIsInvisible(border: string) {
+  const b = rgba(border);
+  return border === 'transparent' || (b !== null && b[3] === 0);
+}
+
 /**
  * The pieces overlap slightly, so a see-through fill would show darker
  * seams. Instead draw the pieces opaque and fade the whole group once,
  * which iOS and Android both composite as a single layer.
  */
-function splitAlpha(fill: string, border: string) {
+function splitAlpha(fill: string, border: string, backdrop?: string) {
   const f = rgba(fill);
   if (!f || f[3] >= 1 || f[3] <= 0) {
     return { fill, border, opacity: 1 };
+  }
+  // Over a known opaque backdrop, blend now: same pixels, no offscreen pass.
+  const bg = backdrop ? rgba(backdrop) : null;
+  if (bg && bg[3] >= 1 && borderColorIsInvisible(border)) {
+    const a = f[3];
+    const mix = (i: number) => Math.round(f[i]! * a + bg[i]! * (1 - a));
+    return { fill: `rgb(${mix(0)}, ${mix(1)}, ${mix(2)})`, border, opacity: 1 };
   }
   const alpha = f[3];
   const b = rgba(border);
@@ -82,9 +99,10 @@ export function Capsule({
   borderWidth,
   frame,
   shadow,
+  backdrop,
   style,
 }: Props) {
-  const solid = splitAlpha(color, borderColor);
+  const solid = splitAlpha(color, borderColor, backdrop);
   const W = Math.max(width, 2 * Math.min(radius, height / 2));
   const H = height;
   const R = Math.min(radius, H / 2);

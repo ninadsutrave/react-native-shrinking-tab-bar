@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ComponentProps,
@@ -54,6 +55,8 @@ interface Settings {
   indicator: 'on' | 'off' | 'gradient';
   transition: IndicatorTransition;
   pop: boolean;
+  defaultBar: boolean;
+  stressJS: boolean;
   keepLabels: boolean;
   pressFeedback: PressFeedback;
   direction: 'auto' | 'ltr' | 'rtl';
@@ -70,6 +73,8 @@ const DEFAULTS: Settings = {
   indicator: 'on',
   transition: 'slide',
   pop: false,
+  defaultBar: false,
+  stressJS: false,
   keepLabels: false,
   pressFeedback: 'scale',
   direction: 'auto',
@@ -335,6 +340,21 @@ function PlaygroundScreen() {
         ]}
       />
       <Chips
+        label="Benchmark: tab bar"
+        value={s.defaultBar}
+        onChange={(defaultBar) => set({ defaultBar })}
+        options={[
+          { label: 'Shrinking', value: false },
+          { label: 'Default', value: true },
+        ]}
+      />
+      <Chips
+        label="Benchmark: stress JS thread"
+        value={s.stressJS}
+        onChange={(stressJS) => set({ stressJS })}
+        options={YES_NO}
+      />
+      <Chips
         label="Icon pop"
         value={s.pop}
         onChange={(pop) => set({ pop })}
@@ -392,74 +412,96 @@ const icon =
 
 const Tab = createBottomTabNavigator();
 
+// Blocks the JS thread for 80 ms out of every 100 ms, to show that the
+// bar's animations don't depend on it.
+function useStressJS(on: boolean) {
+  useEffect(() => {
+    if (!on) return;
+    const id = setInterval(() => {
+      const end = Date.now() + 80;
+      while (Date.now() < end) {
+        // busy wait
+      }
+    }, 100);
+    return () => clearInterval(id);
+  }, [on]);
+}
+
 function Tabs() {
   const { settings: s } = useSettings();
+  useStressJS(s.stressJS);
   return (
     <Tab.Navigator
       screenOptions={{ headerShown: false }}
-      tabBar={(props) => (
-        <ShrinkingTabBar
-          {...props}
-          theme={s.dark ? 'dark' : 'light'}
-          collapseMode={s.collapseMode}
-          align={s.align}
-          showIndicator={s.indicator !== 'off'}
-          indicatorTransition={s.transition}
-          tabFocusAnimation={s.pop ? 'pop' : 'none'}
-          renderIndicator={
-            s.indicator === 'gradient'
-              ? () => (
-                  <LinearGradient
-                    colors={['#7C3AED', '#DB2777']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={StyleSheet.absoluteFill}
-                  />
-                )
-              : undefined
-          }
-          keepLabelsWhenCollapsed={s.keepLabels}
-          pressFeedback={s.pressFeedback}
-          direction={s.direction}
-          animation={
-            s.spring
-              ? { type: 'spring', damping: 18, stiffness: 220, mass: 0.9 }
-              : undefined
-          }
-          placement={s.placement}
-          actionButton={
-            s.button === 'off'
-              ? undefined
-              : {
-                  side: s.button,
-                  accessibilityLabel: 'New post',
-                  icon: ({ color, size }) => (
-                    <Ionicons name="add" color={color} size={size + 4} />
-                  ),
-                  onPress: () =>
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
+      tabBar={
+        s.defaultBar
+          ? undefined
+          : (props) => (
+              <ShrinkingTabBar
+                {...props}
+                theme={s.dark ? 'dark' : 'light'}
+                collapseMode={s.collapseMode}
+                align={s.align}
+                showIndicator={s.indicator !== 'off'}
+                indicatorTransition={s.transition}
+                tabFocusAnimation={s.pop ? 'pop' : 'none'}
+                renderIndicator={
+                  s.indicator === 'gradient'
+                    ? () => (
+                        <LinearGradient
+                          colors={['#7C3AED', '#DB2777']}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={StyleSheet.absoluteFill}
+                        />
+                      )
+                    : undefined
                 }
-          }
-          {...(s.background === 'glass'
-            ? glass({ scheme: s.dark ? 'dark' : 'light' })
-            : s.background === 'blur'
-              ? {
-                  colors: { background: 'transparent' },
-                  renderBackground: () => (
-                    <BlurView
-                      tint={s.dark ? 'dark' : 'light'}
-                      intensity={60}
-                      // Real blur on Android needs a BlurTargetView around the
-                      // screens; this example keeps a tinted fallback there.
-                      blurMethod="none"
-                      style={StyleSheet.absoluteFill}
-                    />
-                  ),
+                keepLabelsWhenCollapsed={s.keepLabels}
+                pressFeedback={s.pressFeedback}
+                direction={s.direction}
+                animation={
+                  s.spring
+                    ? { type: 'spring', damping: 18, stiffness: 220, mass: 0.9 }
+                    : undefined
                 }
-              : null)}
-          onTabPress={() => Haptics.selectionAsync()}
-        />
-      )}
+                placement={s.placement}
+                actionButton={
+                  s.button === 'off'
+                    ? undefined
+                    : {
+                        side: s.button,
+                        accessibilityLabel: 'New post',
+                        icon: ({ color, size }) => (
+                          <Ionicons name="add" color={color} size={size + 4} />
+                        ),
+                        onPress: () =>
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
+                          ),
+                      }
+                }
+                {...(s.background === 'glass'
+                  ? glass({ scheme: s.dark ? 'dark' : 'light' })
+                  : s.background === 'blur'
+                    ? {
+                        colors: { background: 'transparent' },
+                        renderBackground: () => (
+                          <BlurView
+                            tint={s.dark ? 'dark' : 'light'}
+                            intensity={60}
+                            // Real blur on Android needs a BlurTargetView around the
+                            // screens; this example keeps a tinted fallback there.
+                            blurMethod="none"
+                            style={StyleSheet.absoluteFill}
+                          />
+                        ),
+                      }
+                    : null)}
+                onTabPress={() => Haptics.selectionAsync()}
+              />
+            )
+      }
     >
       <Tab.Screen
         name="Home"

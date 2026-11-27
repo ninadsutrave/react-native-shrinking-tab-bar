@@ -579,6 +579,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
                   borderColor="transparent"
                   borderWidth={0}
                   frame={indicatorFrame}
+                  backdrop={renderBackground ? undefined : colors.background}
                   style={{ left: indicatorLeft, top: indicatorLeft }}
                 />
               )}

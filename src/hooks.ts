@@ -51,6 +51,7 @@ export function useShrinkingTabBarScrollHandler(
   const store = useTabBarStore();
   const override = useBehaviorOverride(options.behavior);
   const tracker = useSharedValue<ScrollTracker>({ lastY: 0, travel: 0 });
+  const hasOverride = Object.keys(override).length > 0;
   // Worklets copy what they capture to the UI thread, so capture only the
   // shared values, never the whole store (it holds JS functions).
   const { collapsed, behavior: behaviorSV } = store;
@@ -61,7 +62,10 @@ export function useShrinkingTabBarScrollHandler(
         if (!enabled) return;
         const maxY = e.contentSize.height - e.layoutMeasurement.height;
         const y = inverted ? maxY - e.contentOffset.y : e.contentOffset.y;
-        const behavior = { ...behaviorSV.value, ...override };
+        // No per-event allocation unless this screen overrides the behaviour.
+        const behavior = hasOverride
+          ? { ...behaviorSV.value, ...override }
+          : behaviorSV.value;
         const next = stepScroll(
           tracker.value,
           collapsed.value,
@@ -75,7 +79,7 @@ export function useShrinkingTabBarScrollHandler(
         }
       },
     },
-    [enabled, inverted, override, collapsed, behaviorSV]
+    [enabled, inverted, override, hasOverride, collapsed, behaviorSV]
   );
 }
 
