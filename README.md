@@ -13,7 +13,7 @@ A floating pill tab bar for React Navigation and Expo Router. It shrinks to icon
 - [Install](#install)
 - [Usage](#usage)
 - [Options](#options)
-- [Presets](#presets) · [Glass](#glass) · [Action button](#action-button) · [Selected tab style](#selected-tab-style) · [Custom tab content](#custom-tab-content)
+- [Presets](#presets) · [Scrubbing](#scrubbing) · [Glass](#glass) · [Action button](#action-button) · [Selected tab style](#selected-tab-style) · [Custom tab content](#custom-tab-content)
 - [Right-to-left languages](#right-to-left-languages)
 - [Controlling it from code](#controlling-it-from-code)
 - [Hooks reference](#hooks-reference)
@@ -141,6 +141,8 @@ All props are optional.
 | `keepLabelsWhenCollapsed` | `false` | Keep labels and only reduce the height. The collapsed height is raised if needed so icon and label still fit. |
 | `onCollapseChange` | | `(collapsed) => void`, called on the JS thread. |
 | `onTabPress`, `onTabLongPress` | | `(routeName, focused) => void`. A good place for haptics. |
+| `scrubbing` | `true` | Drag along the bar to switch tabs. See [Scrubbing](#scrubbing). |
+| `onScrubChange` | | `(routeName) => void`, called as a scrub crosses into another tab. |
 
 The scroll thresholds can also be set per screen: `useShrinkingTabBarScrollHandler({ behavior: { collapseAfter: 120 } })`. The hooks also take `enabled` and `inverted` (for chat lists).
 
@@ -214,6 +216,20 @@ import { glass } from 'react-native-shrinking-tab-bar/glass';
 ```
 
 `animation` takes any Reanimated `withTiming` or `withSpring` config with a `type` field. The default is 220 ms timing on the standard ease-in-out curve (`Easing.bezier(0.4, 0, 0.2, 1)`). Reanimated's reduce-motion setting is respected.
+
+### Scrubbing
+
+Drag a finger along the bar to switch tabs: the indicator follows the finger, the tab under it lights up, and letting go switches to it. Letting go on the current tab slides the indicator back. Taps work exactly as before: a drag only takes over once it's clearly horizontal (more than 8 points, mostly sideways).
+
+Add a haptic tick at each tab boundary:
+
+```tsx
+import * as Haptics from 'expo-haptics';
+
+<ShrinkingTabBar {...props} onScrubChange={() => Haptics.selectionAsync()} />
+```
+
+Scrubbing works collapsed and expanded, with any placement, and in RTL. Turn it off with `scrubbing={false}`. It uses React Native's built-in touch responder, so it needs no extra dependency; the indicator is driven from the JS thread while you drag.
 
 ### Glass
 

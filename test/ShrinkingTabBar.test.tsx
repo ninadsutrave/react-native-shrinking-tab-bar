@@ -228,6 +228,12 @@ describe('ShrinkingTabBar', () => {
     );
   });
 
+  it('taps still work with scrubbing off', async () => {
+    const { navigation } = await setup(THREE, 0, { scrubbing: false });
+    await fireEvent.press(screen.getByRole('tab', { name: 'Search' }));
+    expect(navigation.navigate).toHaveBeenCalledWith('Search', undefined);
+  });
+
   describe('action button', () => {
     it('renders with its label and calls onPress', async () => {
       const onPress = jest.fn();

@@ -56,6 +56,7 @@ interface Settings {
   indicator: 'on' | 'off' | 'gradient';
   transition: IndicatorTransition;
   pop: boolean;
+  scrub: boolean;
   defaultBar: boolean;
   preset: 'none' | keyof typeof presets;
   stressJS: boolean;
@@ -75,6 +76,7 @@ const DEFAULTS: Settings = {
   indicator: 'on',
   transition: 'slide',
   pop: false,
+  scrub: true,
   defaultBar: false,
   preset: 'none',
   stressJS: false,
@@ -371,6 +373,12 @@ function PlaygroundScreen() {
         options={YES_NO}
       />
       <Chips
+        label="Scrubbing"
+        value={s.scrub}
+        onChange={(scrub) => set({ scrub })}
+        options={YES_NO}
+      />
+      <Chips
         label="Icon pop"
         value={s.pop}
         onChange={(pop) => set({ pop })}
@@ -461,6 +469,8 @@ function Tabs() {
                 showIndicator={s.indicator !== 'off'}
                 indicatorTransition={s.transition}
                 tabFocusAnimation={s.pop ? 'pop' : 'none'}
+                scrubbing={s.scrub}
+                onScrubChange={() => Haptics.selectionAsync()}
                 renderIndicator={
                   s.indicator === 'gradient'
                     ? () => (

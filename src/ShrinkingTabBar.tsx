@@ -2,10 +2,18 @@ import type {
   BottomTabBarProps,
   BottomTabNavigationOptions,
 } from '@react-navigation/bottom-tabs';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentRef,
+} from 'react';
 import {
   I18nManager,
   Keyboard,
+  PanResponder,
   Platform,
   StyleSheet,
   useColorScheme,
@@ -31,6 +39,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionButton, type ActionButtonFrame } from './ActionButton';
 import { Capsule, type CapsuleFrame, type CapsuleShadow } from './Capsule';
 import { DEFAULT_SCROLL_BEHAVIOR } from './scroll';
+import { isScrubGesture, slotAtX } from './scrub';
 import { checkSetup } from './warnings';
 import { useTabBarStore } from './store';
 import { TabItem, type TabGeometry, type TabItemDescriptor } from './TabItem';
@@ -97,6 +106,8 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
     direction = 'auto',
     showIndicator = true,
     indicatorTransition = 'slide',
+    scrubbing = true,
+    onScrubChange,
     tabFocusAnimation = 'none',
     renderIndicator,
     shadow = true,
@@ -306,6 +317,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
 
   // ---- indicator: two edges (in tab slots) so it can stretch between tabs
   const activeSlot = activeIndex >= 0 ? visual(activeIndex) : -1;
+  const [scrubSlot, setScrubSlot] = useState<number | null>(null);
   const indicatorLead = useSharedValue(Math.max(activeSlot, 0));
   const indicatorTrail = useSharedValue(Math.max(activeSlot, 0));
   const indicatorOpacity = useSharedValue(1);
@@ -447,15 +459,17 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
   });
 
   // ---- press handling (mirrors React Navigation's default tab bar)
-  const items: TabItemDescriptor[] = routes.map((route) => {
+  const items: TabItemDescriptor[] = routes.map((route, index) => {
     // routes only contains keys that have a descriptor (filtered above)
     const options = descriptors[route.key]?.options ?? {};
     const focused = route.key === activeRoute?.key;
+    // While scrubbing, the tab under the finger lights up instead.
+    const lit = scrubSlot !== null ? visual(index) === scrubSlot : focused;
     const title =
       typeof options.tabBarLabel === 'string'
         ? options.tabBarLabel
         : (options.title ?? route.name);
-    const color = focused
+    const color = lit
       ? (options.tabBarActiveTintColor ?? colors.activeTint)
       : (options.tabBarInactiveTintColor ?? colors.inactiveTint);
     return {
@@ -492,6 +506,80 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
       },
     };
   });
+
+  // ---- finger scrubbing
+  // The responder reads the latest render through this ref, so the
+  // PanResponder itself is created once.
+  const latest = useRef({ items, n, activeSlot, scrubbing, onScrubChange });
+  latest.current = { items, n, activeSlot, scrubbing, onScrubChange };
+  const barRef = useRef<ComponentRef<typeof View>>(null);
+  const barCenterX = useRef(0);
+  const lastScrubSlot = useRef<number | null>(null);
+
+  const scrubResponder = useMemo(() => {
+    const logical = (slot: number) =>
+      rtl ? latest.current.n - 1 - slot : slot;
+    const update = (x: number) => {
+      const g = groupLayout.value;
+      const itemW = eW + (cW - eW) * progress.value;
+      const s = slotAtX(
+        x,
+        barCenterX.current,
+        g.barShift,
+        itemW,
+        latest.current.n
+      );
+      indicatorLead.value = s;
+      indicatorTrail.value = s;
+      indicatorOpacity.value = 1;
+      const r = Math.round(s);
+      if (r !== lastScrubSlot.current) {
+        lastScrubSlot.current = r;
+        setScrubSlot(r);
+        const item = latest.current.items[logical(r)];
+        if (item) latest.current.onScrubChange?.(item.name);
+      }
+    };
+    const settle = (commit: boolean) => {
+      const r = lastScrubSlot.current;
+      lastScrubSlot.current = null;
+      setScrubSlot(null);
+      const { items: current, activeSlot: active } = latest.current;
+      const target = r === null ? undefined : current[logical(r)];
+      if (commit && target && r !== active) {
+        target.onPress();
+      } else if (active >= 0) {
+        indicatorLead.value = animateTo(active, indicatorAnim);
+        indicatorTrail.value = animateTo(active, indicatorAnim);
+      }
+    };
+    return PanResponder.create({
+      onMoveShouldSetPanResponderCapture: (_, g) =>
+        latest.current.scrubbing && isScrubGesture(g.dx, g.dy),
+      onPanResponderGrant: (e) => {
+        const x = e.nativeEvent.pageX;
+        barRef.current?.measureInWindow((left, _top, width) => {
+          barCenterX.current = left + width / 2;
+          update(x);
+        });
+      },
+      onPanResponderMove: (e) => update(e.nativeEvent.pageX),
+      onPanResponderRelease: () => settle(true),
+      onPanResponderTerminate: () => settle(false),
+      onPanResponderTerminationRequest: () => false,
+    });
+    // Geometry and shared values are stable for a given layout.
+  }, [
+    rtl,
+    eW,
+    cW,
+    groupLayout,
+    progress,
+    indicatorLead,
+    indicatorTrail,
+    indicatorOpacity,
+    indicatorAnim,
+  ]);
 
   const actionButtonElement =
     hasButton && actionButton ? (
@@ -530,9 +618,11 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
       <View pointerEvents="box-none" style={styles.group}>
         {hasButton && buttonLeft ? actionButtonElement : null}
         <View
+          ref={barRef}
           accessibilityRole="tablist"
           testID={testID}
           pointerEvents="box-none"
+          {...(scrubbing ? scrubResponder.panHandlers : null)}
           style={[
             styles.bar,
             {

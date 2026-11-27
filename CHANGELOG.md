@@ -14,6 +14,7 @@ All notable changes to this project are documented here. The project uses [Seman
 - Sliding indicator with `slide`, `stretch`, `fade` and `none` transitions, `renderIndicator` for gradients, and per-tab `tabBarActiveBackgroundColor`.
 - `tabFocusAnimation: 'pop'` for the newly selected icon.
 - Action button beside the bar that shrinks with it.
+- Finger scrubbing: drag along the bar to switch tabs, with `onScrubChange` for haptics.
 - Glass background in a separate `/glass` entry point: Liquid Glass on iOS 26+, blur on older iOS, frosted fill on Android and web.
 - `renderBackground` and `renderTab` for custom drawing.
 - RTL support, screen-reader labels and states, badges, keyboard hiding, and hiding the bar per screen.

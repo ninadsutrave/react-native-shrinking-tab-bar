@@ -163,6 +163,14 @@ export interface ShrinkingTabBarOptions {
   >;
   /** How the indicator moves between tabs. Default `slide`. */
   indicatorTransition?: IndicatorTransition;
+  /**
+   * Drag along the bar to switch tabs: the indicator follows the finger, the
+   * tab under it lights up, and releasing switches to it. Taps work as before.
+   * Default true.
+   */
+  scrubbing?: boolean;
+  /** Called each time a scrub crosses into another tab. A good place for a haptic tick. */
+  onScrubChange?: (routeName: string) => void;
   /** A small bounce on the icon of the newly selected tab. Default `none`. */
   tabFocusAnimation?: 'none' | 'pop';
   /**
