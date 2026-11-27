@@ -32,6 +32,7 @@ import {
   useShrinkingTabBarInset,
   useShrinkingTabBarScrollHandler,
 } from 'react-native-shrinking-tab-bar';
+import { glass } from 'react-native-shrinking-tab-bar/glass';
 import { CATEGORIES, feedPage, type EventItem, type FeedItem } from './data';
 import {
   Carousel,
@@ -351,7 +352,11 @@ export default function App() {
   const savedCount = Object.keys(saved).length;
 
   const barOptions = combine(
-    config.preset === 'none' ? null : presets[config.preset],
+    config.preset === 'none'
+      ? null
+      : config.preset === 'glass'
+        ? glass()
+        : presets[config.preset],
     {
       theme: palette.dark ? 'dark' : 'light',
       collapseMode: config.collapseMode,

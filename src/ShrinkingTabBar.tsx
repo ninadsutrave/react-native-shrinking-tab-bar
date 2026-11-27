@@ -601,6 +601,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
           shadow={shadowConfig}
           pressFeedback={pressFeedback}
           renderBackground={renderBackground}
+          dark={isDark}
         />
       </View>
     ) : null;
@@ -653,7 +654,11 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
                 customBackgroundStyle,
               ]}
             >
-              {renderBackground({ progress, borderRadius: radius })}
+              {renderBackground({
+                progress,
+                borderRadius: radius,
+                dark: isDark,
+              })}
             </Animated.View>
           ) : (
             <Capsule

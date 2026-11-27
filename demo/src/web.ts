@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 /** Settings the website sends into the demo. */
 export interface DemoConfig {
   theme: 'light' | 'dark';
-  preset: 'none' | 'minimal' | 'compact' | 'vibrant' | 'fullWidth';
+  preset: 'none' | 'minimal' | 'compact' | 'vibrant' | 'fullWidth' | 'glass';
   collapseMode: 'icons' | 'hide' | 'none';
   actionButton: boolean;
   placement: 'center' | 'start' | 'end';

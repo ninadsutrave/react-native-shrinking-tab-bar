@@ -80,6 +80,8 @@ export interface TabRenderProps {
 export interface BackgroundRenderProps {
   progress: SharedValue<number>;
   borderRadius: number;
+  /** Whether the bar is using its dark colours (from `theme`). */
+  dark: boolean;
 }
 
 export interface ActionButtonOptions {

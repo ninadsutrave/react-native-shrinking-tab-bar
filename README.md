@@ -249,9 +249,10 @@ It uses the best glass each platform has:
 
 - **iOS 26 and newer:** real Liquid Glass (`expo-glass-effect`).
 - **Older iOS:** the system material blur (`expo-blur`).
-- **Android and web:** a frosted fill with a light top edge. There's no system glass there, and a live blur costs too much for a bar that sits on every screen.
+- **Android:** a frosted fill with a light top edge. There's no system glass there, and a live blur costs too much for a bar that sits on every screen.
+- **Web:** a real blur of what's behind, with CSS `backdrop-filter`.
 
-Options: `glass({ scheme, variant, tintColor, interactive, blurIntensity, fallbackColor })`. `scheme` is `'auto'`, `'light'` or `'dark'`; `variant` is Liquid Glass's `'regular'` or `'clear'`. To change colours as well, merge with `combine(glass(), { colors: { activeTint: '#fff' } })`; passing `colors` on its own would replace glass's colours.
+Options: `glass({ scheme, variant, tintColor, interactive, blurIntensity, fallbackColor })`. `scheme` is `'auto'` (follows the bar's `theme`), `'light'` or `'dark'`; `variant` is Liquid Glass's `'regular'` or `'clear'`. To change colours as well, merge with `combine(glass(), { colors: { activeTint: '#fff' } })`; passing `colors` on its own would replace glass's colours.
 
 The glass import is separate, so apps that don't use it never need the Expo modules.
 

@@ -1,6 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
-import { Platform, StyleSheet, useColorScheme, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import type {
   BackgroundRenderProps,
   ShrinkingTabBarColors,
@@ -8,7 +8,7 @@ import type {
 } from './types';
 
 export interface GlassOptions {
-  /** Light or dark glass. `auto` follows the system. Default `auto`. */
+  /** Light or dark glass. `auto` follows the bar's `theme`. Default `auto`. */
   scheme?: 'auto' | 'light' | 'dark';
   /** Liquid Glass style on iOS 26+: `regular` (frosted) or `clear`. Default `regular`. */
   variant?: 'regular' | 'clear';
@@ -16,25 +16,25 @@ export interface GlassOptions {
   tintColor?: string;
   /** Liquid Glass reacts to touch on iOS 26+. Default false. */
   interactive?: boolean;
-  /** Blur strength on iOS before 26, 0 to 100. Default 80. */
+  /** Blur strength on iOS before 26 and on web, 0 to 100. Default 80. */
   blurIntensity?: number;
-  /** Fill on Android and web, where there is no system glass. */
+  /** Fill on Android, where there is no system glass. */
   fallbackColor?: string;
 }
 
 function GlassFill({
   options,
   borderRadius,
+  barDark,
 }: {
   options: GlassOptions;
   borderRadius: number;
+  barDark: boolean;
 }) {
-  const system = useColorScheme();
-  const scheme =
+  const dark =
     !options.scheme || options.scheme === 'auto'
-      ? (system ?? 'light')
-      : options.scheme;
-  const dark = scheme === 'dark';
+      ? barDark
+      : options.scheme === 'dark';
 
   if (Platform.OS === 'ios' && isLiquidGlassAvailable()) {
     return (
@@ -43,7 +43,7 @@ function GlassFill({
         glassEffectStyle={options.variant ?? 'regular'}
         tintColor={options.tintColor}
         isInteractive={options.interactive}
-        colorScheme={options.scheme ?? 'auto'}
+        colorScheme={dark ? 'dark' : 'light'}
       />
     );
   }
@@ -68,8 +68,28 @@ function GlassFill({
     );
   }
 
-  // Android and web have no system glass: a frosted fill with a light top
-  // edge reads as glass without the cost of a live blur.
+  // Browsers blur what's behind cheaply with backdrop-filter.
+  if (Platform.OS === 'web') {
+    return (
+      <BlurView
+        style={[StyleSheet.absoluteFill, { borderRadius }]}
+        intensity={options.blurIntensity ?? 80}
+        tint={dark ? 'dark' : 'light'}
+      >
+        {options.tintColor ? (
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: options.tintColor },
+            ]}
+          />
+        ) : null}
+      </BlurView>
+    );
+  }
+
+  // Android has no system glass: a frosted fill with a light top edge reads
+  // as glass without the cost of a live blur.
   return (
     <View
       style={[
@@ -112,8 +132,8 @@ export function glass(options: GlassOptions = {}): Required<
   colors: Partial<ShrinkingTabBarColors>;
 } {
   return {
-    renderBackground: ({ borderRadius }: BackgroundRenderProps) => (
-      <GlassFill options={options} borderRadius={borderRadius} />
+    renderBackground: ({ borderRadius, dark }: BackgroundRenderProps) => (
+      <GlassFill options={options} borderRadius={borderRadius} barDark={dark} />
     ),
     colors: {
       background: 'transparent',

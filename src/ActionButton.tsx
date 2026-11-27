@@ -34,6 +34,7 @@ interface Props {
   shadow?: CapsuleShadow;
   pressFeedback: PressFeedback;
   renderBackground?: (props: BackgroundRenderProps) => ReactNode;
+  dark: boolean;
 }
 
 /**
@@ -52,6 +53,7 @@ export function ActionButton({
   shadow,
   pressFeedback,
   renderBackground,
+  dark,
 }: Props) {
   const pressed = useSharedValue(0);
   const feedback =
@@ -111,7 +113,7 @@ export function ActionButton({
             },
           ]}
         >
-          {renderBackground({ progress, borderRadius: radius })}
+          {renderBackground({ progress, borderRadius: radius, dark })}
         </View>
       ) : (
         <View
