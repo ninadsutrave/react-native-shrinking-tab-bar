@@ -2,6 +2,8 @@
   "extends": "./tsconfig",
   "exclude": [
     "example",
+    "demo",
+    "website",
     "lib",
     "test"
   ]

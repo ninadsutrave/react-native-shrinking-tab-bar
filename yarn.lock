@@ -10044,6 +10044,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-shrinking-tab-bar-demo@workspace:demo":
+  version: 0.0.0-use.local
+  resolution: "react-native-shrinking-tab-bar-demo@workspace:demo"
+  dependencies:
+    "@expo/metro-runtime": "npm:~57.0.19"
+    "@expo/vector-icons": "npm:^15.0.2"
+    "@react-navigation/bottom-tabs": "npm:^7.22.0"
+    "@react-navigation/native": "npm:^7.5.2"
+    expo: "npm:~57.0.34"
+    expo-font: "npm:~57.0.4"
+    expo-linear-gradient: "npm:~57.0.2"
+    react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
+    react-native: "npm:0.86.3"
+    react-native-builder-bob: "npm:^0.44.1"
+    react-native-monorepo-config: "npm:^0.4.0"
+    react-native-reanimated: "npm:4.5.1"
+    react-native-safe-area-context: "npm:~5.7.0"
+    react-native-screens: "npm:~4.26.0"
+    react-native-web: "npm:~0.21.0"
+    react-native-worklets: "npm:0.10.1"
+  languageName: unknown
+  linkType: soft
+
 "react-native-shrinking-tab-bar-example@workspace:example":
   version: 0.0.0-use.local
   resolution: "react-native-shrinking-tab-bar-example@workspace:example"

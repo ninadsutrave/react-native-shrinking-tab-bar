@@ -47,6 +47,18 @@ Open it in Expo Go (SDK 57) on a device, the iOS Simulator or an Android emulato
 
 Please check visual changes on **both iOS and Android**. The two platforms differ in shadows, blur, group opacity and text rendering, and several past bugs only showed up on one of them.
 
+## Website and web demo
+
+`website/` is the static project page. Its phone shows `demo/`, a small Expo app built for the web that uses the library's source.
+
+```sh
+yarn demo web        # work on the demo in the browser
+yarn site:build      # export the demo into website/demo
+npx serve website    # preview the page (any static server works)
+```
+
+The demo is exported with a base path of `/demo`. If the site is served from a sub-path (for example GitHub Pages at `/react-native-shrinking-tab-bar/`), build with `DEMO_BASE_URL=/react-native-shrinking-tab-bar/demo yarn site:build`.
+
 ## Checks
 
 Run these before opening a pull request. CI runs the same ones.

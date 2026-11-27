@@ -35,5 +35,11 @@
     "target": "ESNext",
     "verbatimModuleSyntax": true,
     "allowImportingTsExtensions": true
-  }
+  },
+  "exclude": [
+    "demo",
+    "website",
+    "lib",
+    "node_modules"
+  ]
 }

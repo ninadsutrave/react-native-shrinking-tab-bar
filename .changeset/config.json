@@ -4,5 +4,8 @@
   "commit": false,
   "access": "public",
   "baseBranch": "main",
-  "ignore": ["react-native-shrinking-tab-bar-example"]
+  "ignore": [
+    "react-native-shrinking-tab-bar-example",
+    "react-native-shrinking-tab-bar-demo"
+  ]
 }
