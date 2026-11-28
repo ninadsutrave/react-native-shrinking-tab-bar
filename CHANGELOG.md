@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here. The project uses [Semantic Versioning](https://semver.org/). Entries are generated from changesets; see [RELEASING.md](RELEASING.md).
 
+## 0.2.0
+
+### Minor Changes
+
+- ac4e686: Glass now blurs what's behind the bar on web, and `scheme: 'auto'` follows the bar's `theme` instead of the system. `renderBackground` receives `dark`.
+- a03a274: While VoiceOver or TalkBack is on, scrolling no longer collapses or hides the bar. Turn this off with `keepExpandedWithScreenReader={false}`.
+
 ## 0.1.0
 
 ### Added
