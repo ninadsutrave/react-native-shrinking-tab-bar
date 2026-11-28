@@ -1,6 +1,6 @@
 {
   "name": "react-native-shrinking-tab-bar",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Floating pill tab bar for React Navigation and Expo Router that shrinks to icons on scroll. Fully customisable, runs on the UI thread.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
