@@ -41,7 +41,7 @@ jobs:
           commit-message: Version Packages
 
       - name: Publish
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.changesets.outputs.has-changesets == 'false'
         run: node scripts/publish.mjs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
