@@ -12,6 +12,8 @@ export interface TabBarStore {
   progress: SharedValue<number>;
   /** Animated 0 (visible) to 1 (hidden by the keyboard or a screen option). */
   hidden: SharedValue<number>;
+  /** True while scrolling must not collapse the bar (a screen reader is on). */
+  keepExpanded: SharedValue<boolean>;
   /** Behaviour set on the bar; scroll hooks can override it per screen. */
   behavior: SharedValue<ScrollBehavior>;
   /** Space the expanded bar covers above the bottom safe area, in points. */
@@ -31,6 +33,7 @@ export function createTabBarStore(): TabBarStore {
     collapsed: makeMutable(false),
     progress: makeMutable(0),
     hidden: makeMutable(0),
+    keepExpanded: makeMutable(false),
     behavior: makeMutable<ScrollBehavior>(DEFAULT_SCROLL_BEHAVIOR),
     bars: { count: 0 },
     occupiedHeight: {

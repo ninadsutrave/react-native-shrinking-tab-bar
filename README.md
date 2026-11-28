@@ -146,6 +146,7 @@ All props are optional.
 | `expandOnTabChange` | `true` | Switching tabs expands the bar. |
 | `expandOnFocusedTabPress` | `true` | Tapping the current tab while collapsed expands the bar. |
 | `hideOnKeyboard` | `true` on Android | Slide the bar away while the keyboard is open. |
+| `keepExpandedWithScreenReader` | `true` | While VoiceOver or TalkBack is on, scrolling never collapses or hides the bar. |
 | `keepLabelsWhenCollapsed` | `false` | Keep labels and only reduce the height. The collapsed height is raised if needed so icon and label still fit. |
 | `onCollapseChange` | | `(collapsed) => void`, called on the JS thread. |
 | `onTabPress`, `onTabLongPress` | | `(routeName, focused) => void`. A good place for haptics. |
@@ -381,6 +382,8 @@ The only exceptions are custom backgrounds and custom indicators (`renderBackgro
 ## Accessibility
 
 Each tab has the `tab` role, its selected state, and its label as the accessibility label even when the label is hidden. Badges are read out (`"Saved, 3 new"`). Override with `tabBarAccessibilityLabel`. Label font scaling is capped at 1.3× so large text doesn't break the bar.
+
+While VoiceOver or TalkBack is on, scrolling never collapses or hides the bar, following [Android's guidance](https://developer.android.com/reference/com/google/android/material/behavior/HideBottomViewOnScrollBehavior) for bars that hide on scroll. Someone exploring the screen by touch keeps the tabs where they found them. Turn this off with `keepExpandedWithScreenReader={false}`.
 
 ## Example app
 

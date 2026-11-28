@@ -11,6 +11,7 @@ import {
   type ComponentRef,
 } from 'react';
 import {
+  AccessibilityInfo,
   I18nManager,
   Keyboard,
   PanResponder,
@@ -97,6 +98,7 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
     expandOnTabChange = true,
     expandOnFocusedTabPress = true,
     hideOnKeyboard = Platform.OS === 'android',
+    keepExpandedWithScreenReader = true,
     align = 'center',
     placement = 'center',
     actionButton,
@@ -300,6 +302,31 @@ export function ShrinkingTabBar(props: ShrinkingTabBarProps) {
     }
     if (expandOnTabChange) store.collapsed.value = false;
   }, [state.index, expandOnTabChange, store]);
+
+  // ---- screen readers: scrolling never collapses or hides the bar, so
+  // someone exploring the screen by touch doesn't lose the tabs under them.
+  useEffect(() => {
+    if (!keepExpandedWithScreenReader) {
+      store.keepExpanded.value = false;
+      return;
+    }
+    let active = true;
+    const apply = (on: boolean) => {
+      if (!active) return;
+      store.keepExpanded.value = on;
+      if (on) store.collapsed.value = false;
+    };
+    AccessibilityInfo.isScreenReaderEnabled().then(apply, () => {});
+    const sub = AccessibilityInfo.addEventListener(
+      'screenReaderChanged',
+      apply
+    );
+    return () => {
+      active = false;
+      sub?.remove();
+      store.keepExpanded.value = false;
+    };
+  }, [keepExpandedWithScreenReader, store]);
 
   // ---- keyboard and screen-level hiding
   const [keyboardOpen, setKeyboardOpen] = useState(false);

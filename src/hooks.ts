@@ -62,7 +62,7 @@ export function useShrinkingTabBarScrollHandler(
   const hasOverride = Object.keys(override).length > 0;
   // Worklets copy what they capture to the UI thread, so capture only the
   // shared values, never the whole store (it holds JS functions).
-  const { collapsed, behavior: behaviorSV } = store;
+  const { collapsed, keepExpanded, behavior: behaviorSV } = store;
 
   const handler = useAnimatedScrollHandler(
     {
@@ -82,12 +82,21 @@ export function useShrinkingTabBarScrollHandler(
           behavior
         );
         tracker.value = { lastY: next.lastY, travel: next.travel };
+        if (next.collapsed && keepExpanded.value) return;
         if (next.collapsed !== collapsed.value) {
           collapsed.value = next.collapsed;
         }
       },
     },
-    [enabled, inverted, override, hasOverride, collapsed, behaviorSV]
+    [
+      enabled,
+      inverted,
+      override,
+      hasOverride,
+      collapsed,
+      keepExpanded,
+      behaviorSV,
+    ]
   );
   return Platform.OS === 'web'
     ? (webListener as unknown as typeof handler)
@@ -122,6 +131,7 @@ export function useShrinkingTabBarScrollListener(
         behavior
       );
       tracker.current = { lastY: next.lastY, travel: next.travel };
+      if (next.collapsed && store.keepExpanded.value) return;
       if (next.collapsed !== store.collapsed.value) {
         store.collapsed.value = next.collapsed;
       }

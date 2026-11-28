@@ -7,7 +7,7 @@ import {
   renderHook,
   screen,
 } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { AccessibilityInfo, Text } from 'react-native';
 import {
   combine,
   presets,
@@ -337,6 +337,82 @@ describe('hooks', () => {
       } as never)
     );
     expect(result.current.bar.collapsed.value).toBe(false);
+  });
+});
+
+describe('screen readers', () => {
+  const scrollEvent = (y: number) =>
+    ({
+      nativeEvent: {
+        contentOffset: { x: 0, y },
+        contentSize: { width: 400, height: 5000 },
+        layoutMeasurement: { width: 400, height: 800 },
+      },
+    }) as never;
+
+  let onChange: ((on: boolean) => void) | undefined;
+  beforeEach(() => {
+    onChange = undefined;
+    jest.spyOn(AccessibilityInfo, 'addEventListener').mockImplementation(((
+      _: string,
+      fn: (on: boolean) => void
+    ) => {
+      onChange = fn;
+      return { remove: jest.fn() };
+    }) as never);
+  });
+  afterEach(() => jest.restoreAllMocks());
+
+  async function mount(screenReader: boolean, keep?: boolean) {
+    jest
+      .spyOn(AccessibilityInfo, 'isScreenReaderEnabled')
+      .mockResolvedValue(screenReader);
+    let controls: ReturnType<typeof useShrinkingTabBar> | undefined;
+    let onScroll: ReturnType<typeof useShrinkingTabBarScrollListener>;
+    function Screen() {
+      controls = useShrinkingTabBar();
+      onScroll = useShrinkingTabBarScrollListener();
+      return null;
+    }
+    const props = {
+      state: { index: 0, routes: [{ key: 'h', name: 'Home' }], key: 't' },
+      descriptors: { h: { options: { tabBarIcon: () => null } } },
+      navigation: { emit: jest.fn(() => ({})), navigate: jest.fn() },
+      insets: { top: 0, bottom: 0, left: 0, right: 0 },
+      ...(keep === undefined ? null : { keepExpandedWithScreenReader: keep }),
+    } as unknown as ShrinkingTabBarProps & BottomTabBarProps;
+    await render(
+      <ShrinkingTabBarProvider>
+        <ShrinkingTabBar {...props} />
+        <Screen />
+      </ShrinkingTabBarProvider>
+    );
+    const scroll = async (...ys: number[]) => {
+      for (const y of ys) await act(() => onScroll(scrollEvent(y)));
+    };
+    return { controls: () => controls!, scroll };
+  }
+
+  it('scrolling never collapses the bar while a screen reader is on', async () => {
+    const { controls, scroll } = await mount(true);
+    await scroll(10, 400);
+    expect(controls().collapsed.value).toBe(false);
+  });
+
+  it('expands a collapsed bar when a screen reader turns on', async () => {
+    const { controls, scroll } = await mount(false);
+    await scroll(10, 400);
+    expect(controls().collapsed.value).toBe(true);
+    await act(() => onChange?.(true));
+    expect(controls().collapsed.value).toBe(false);
+    await scroll(800);
+    expect(controls().collapsed.value).toBe(false);
+  });
+
+  it('can be turned off', async () => {
+    const { controls, scroll } = await mount(true, false);
+    await scroll(10, 400);
+    expect(controls().collapsed.value).toBe(true);
   });
 });
 

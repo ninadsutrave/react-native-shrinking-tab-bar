@@ -140,6 +140,12 @@ export interface ShrinkingTabBarOptions {
   /** Slide the bar away while the keyboard is open. Default true on Android. */
   hideOnKeyboard?: boolean;
   /**
+   * While a screen reader (VoiceOver, TalkBack) is on, scrolling never
+   * collapses or hides the bar, so people exploring by touch don't lose the
+   * tabs. `collapse()` from `useShrinkingTabBar` still works. Default true.
+   */
+  keepExpandedWithScreenReader?: boolean;
+  /**
    * Where the bar sits: `center`, or anchored to the `start` / `end` edge
    * (left / right in LTR, mirrored in RTL). The bar shrinks towards that edge.
    * Default `center`.
