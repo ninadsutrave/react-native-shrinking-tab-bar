@@ -43,8 +43,8 @@
     "typecheck": "tsc && tsc -p demo",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "node --test test/*.test.mts && jest",
-    "changeset": "changeset",
-    "release": "changeset publish",
+    "changeset": "node scripts/changeset.mjs",
+    "release": "node scripts/changeset.mjs publish",
     "demo": "yarn workspace react-native-shrinking-tab-bar-demo",
     "site:build": "yarn demo export"
   },
