@@ -85,3 +85,4 @@ website/demo/
 
 # Local recordings and other build output
 builds/
+.release-notes.md

@@ -29,10 +29,19 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
 
-      - name: Create release pull request or publish
+      # Opens or updates the Version Packages pull request while there are
+      # changesets. Publishing is done by scripts/publish.mjs, because the
+      # action only tags and releases workspace packages, not a root package.
+      - name: Create release pull request
+        id: changesets
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           version-script: yarn changeset version
-          publish-script: yarn release
           pr-title: Version Packages
           commit-message: Version Packages
+
+      - name: Publish
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: node scripts/publish.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
